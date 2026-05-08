@@ -23,21 +23,26 @@ public class Product {
     private String productName;
 
     @Column(name = "product_image_url", nullable = false)
+    @Builder.Default
     private String productImageUrl = "nothing.jpg";
 
     @Column(name = "product_brand", nullable = false)
+    @Builder.Default
     private String productBrand = "N/A";
 
     @Column(nullable = false, precision = 2, scale = 1)
+    @Builder.Default
     private BigDecimal rating = BigDecimal.ZERO;
 
     @Column(name = "product_description", columnDefinition = "TEXT")
     private String productDescription;
 
     @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
     private BigDecimal price = BigDecimal.ZERO;
 
     @Column(name = "stock_quantity", nullable = false)
+    @Builder.Default
     private Integer stockQuantity = 0;
 
     @Column(name = "created_at", updatable = false)
@@ -47,12 +52,15 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private Boolean isActive = true;
 
     @Column(name = "created_by", nullable = false)
+    @Builder.Default
     private Integer createdBy = 1111;
 
     @Column(name = "updated_by", nullable = false)
+    @Builder.Default
     private Integer updatedBy = 1111;
 
     @ManyToOne(fetch = FetchType.LAZY)
