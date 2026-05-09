@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ public class ProductImpl implements IProduct{
 
     @Override
     public List<GetAllProductResponseDTO> getAllProducts() {
-        List<Product> products = productRepo.findAllProducts();
+        List<Product> products = productRepo.findAll();
         return products.stream()
                 .map( product -> GetAllProductResponseDTO.builder()
                         .id(product.getId())
@@ -37,6 +36,6 @@ public class ProductImpl implements IProduct{
                         .categoryId(product.getCategory().getId())
                         .categoryName(product.getCategory().getCategoryName())
                         .build()
-                ).collect(Collectors.toList());
+                ).toList();
     }
 }
