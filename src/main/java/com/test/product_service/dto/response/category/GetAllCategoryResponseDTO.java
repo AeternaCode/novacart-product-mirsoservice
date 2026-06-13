@@ -1,4 +1,4 @@
-package com.test.product_service.dto.response;
+package com.test.product_service.dto.response.category;
 
 import lombok.Builder;
 

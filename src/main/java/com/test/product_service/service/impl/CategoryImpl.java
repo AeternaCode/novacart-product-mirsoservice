@@ -1,6 +1,6 @@
 package com.test.product_service.service.impl;
 
-import com.test.product_service.dto.response.GetAllCategoryResponseDTO;
+import com.test.product_service.dto.response.category.GetAllCategoryResponseDTO;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
 import lombok.RequiredArgsConstructor;

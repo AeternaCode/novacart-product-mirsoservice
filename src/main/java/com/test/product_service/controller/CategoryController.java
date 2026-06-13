@@ -1,6 +1,6 @@
 package com.test.product_service.controller;
 
-import com.test.product_service.dto.response.GetAllCategoryResponseDTO;
+import com.test.product_service.dto.response.category.GetAllCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
