@@ -1,13 +1,12 @@
 package com.test.product_service.controller;
 
+import com.test.product_service.dto.response.product.AddProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,7 +28,11 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
     //add
-
+    @PostMapping("/add-product")
+    public ResponseEntity<Void> addProduct(@RequestBody AddProductRequestDTO addProductRequestDTO){
+        productService.addProduct(addProductRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
     // delete
 
     // update

@@ -1,8 +1,10 @@
 package com.test.product_service.service.impl;
 
+import com.test.product_service.dto.response.product.AddProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Product;
 import com.test.product_service.mapper.product.ToDTO;
+import com.test.product_service.mapper.product.ToEntity;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +29,11 @@ public class ProductImpl implements IProduct{
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("No Product Found"));
         return ToDTO.toGetProductResponseDTO(product);
+    }
+
+    @Override
+    public void addProduct(AddProductRequestDTO addProductRequestDTO) {
+        Product product = ToEntity.toProductEntity(addProductRequestDTO);
+        productRepo.save(product);
     }
 }
