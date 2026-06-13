@@ -36,4 +36,9 @@ public class ProductImpl implements IProduct{
         Product product = ToEntity.toProductEntity(addProductRequestDTO);
         productRepo.save(product);
     }
+
+    @Override
+    public void removeProductById(Integer id) {
+        productRepo.deleteById(id);
+    }
 }
