@@ -1,4 +1,4 @@
-package com.test.product_service.dto.response;
+package com.test.product_service.dto.response.product;
 
 import lombok.Builder;
 
@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Builder
-public record GetAllProductResponseDTO(
+public record GetProductResponseDTO(
         Integer id,
 
         String productName,
