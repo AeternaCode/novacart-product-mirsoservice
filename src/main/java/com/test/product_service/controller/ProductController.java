@@ -1,6 +1,7 @@
 package com.test.product_service.controller;
 
-import com.test.product_service.dto.response.product.AddProductRequestDTO;
+import com.test.product_service.dto.request.product.AddProductRequestDTO;
+import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductImpl;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,8 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
     // update
-
+    @PatchMapping("update-product-by-id/{id}")
+    public ResponseEntity<GetProductResponseDTO> updateProductById(@PathVariable  Integer id, @RequestBody UpdateProductRequestDTO updateProductRequestDTO){
+        return ResponseEntity.ok(productService.updateProductById(id,updateProductRequestDTO));
+    }
 }

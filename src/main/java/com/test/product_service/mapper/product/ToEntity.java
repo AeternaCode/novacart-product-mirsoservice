@@ -1,6 +1,6 @@
 package com.test.product_service.mapper.product;
 
-import com.test.product_service.dto.response.product.AddProductRequestDTO;
+import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
 
