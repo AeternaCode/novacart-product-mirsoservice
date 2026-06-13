@@ -41,7 +41,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
     // update
-    @PatchMapping("update-product-by-id/{id}")
+    @PatchMapping("/update-product-by-id/{id}")
     public ResponseEntity<GetProductResponseDTO> updateProductById(@PathVariable  Integer id, @RequestBody UpdateProductRequestDTO updateProductRequestDTO){
         return ResponseEntity.ok(productService.updateProductById(id,updateProductRequestDTO));
     }
