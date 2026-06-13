@@ -1,11 +1,13 @@
 package com.test.product_service.mapper.product;
 
+import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
+import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
 
 import java.util.List;
 
-public class ToDTO {
+public class ProductMapper {
 
     private static GetProductResponseDTO mapGetProductResponseDTO(Product product){
        return GetProductResponseDTO.builder()
@@ -28,7 +30,7 @@ public class ToDTO {
     }
     public static List<GetProductResponseDTO> toGetProductResponseDTO(List<Product> products){
         return products.stream()
-                .map(ToDTO::mapGetProductResponseDTO).toList();
+                .map(ProductMapper::mapGetProductResponseDTO).toList();
 
     }
 
@@ -36,5 +38,18 @@ public class ToDTO {
         return mapGetProductResponseDTO(product);
     }
 
-
+    public static Product toProductEntity(AddProductRequestDTO addProductRequestDTO) {
+        Category category = new Category();
+        category.setId(addProductRequestDTO.categoryId());
+        return Product.builder()
+                .productName(addProductRequestDTO.productName())
+                .productImageUrl(addProductRequestDTO.productImageUrl())
+                .productBrand(addProductRequestDTO.productBrand())
+                .productDescription(addProductRequestDTO.productDescription())
+                .price(addProductRequestDTO.price())
+                .stockQuantity(addProductRequestDTO.stockQuantity())
+                .isActive(addProductRequestDTO.isActive())
+                .category(category)
+                .build();
+    }
 }

@@ -5,8 +5,7 @@ import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
-import com.test.product_service.mapper.product.ToDTO;
-import com.test.product_service.mapper.product.ToEntity;
+import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
@@ -25,19 +24,19 @@ public class ProductImpl implements IProduct{
     @Override
     public List<GetProductResponseDTO> getAllProducts() {
         List<Product> products = productRepo.findAll();
-        return ToDTO.toGetProductResponseDTO(products);
+        return ProductMapper.toGetProductResponseDTO(products);
     }
 
     @Override
     public GetProductResponseDTO getProductById(Integer id){
         Product product = productRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("No Product Found"));
-        return ToDTO.toGetProductResponseDTO(product);
+        return ProductMapper.toGetProductResponseDTO(product);
     }
 
     @Override
     public void addProduct(AddProductRequestDTO addProductRequestDTO) {
-        Product product = ToEntity.toProductEntity(addProductRequestDTO);
+        Product product = ProductMapper.toProductEntity(addProductRequestDTO);
         productRepo.save(product);
     }
 
@@ -89,7 +88,7 @@ public class ProductImpl implements IProduct{
             product.setCategory(category);
         }
         productRepo.save(product);
-        return ToDTO.toGetProductResponseDTO(product);
+        return ProductMapper.toGetProductResponseDTO(product);
 
     }
 }
