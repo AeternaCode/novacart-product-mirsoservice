@@ -2,7 +2,7 @@ package com.test.product_service.controller;
 
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
-import com.test.product_service.service.impl.CategoryImpl;
+import com.test.product_service.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
 
-    private final CategoryImpl categoryService;
+    private final CategoryServiceImpl categoryService;
 
     @GetMapping("/get-all-categories")
     public ResponseEntity<List<GetCategoryResponseDTO>> getAllCategories(){

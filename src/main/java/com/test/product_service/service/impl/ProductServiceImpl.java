@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProductImpl implements IProduct{
+public class ProductServiceImpl implements IProduct{
 
     private final IProductRepo productRepo;
     private final ICategoryRepo categoryRepo;

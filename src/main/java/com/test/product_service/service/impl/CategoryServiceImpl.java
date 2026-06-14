@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryImpl implements ICategory {
+public class CategoryServiceImpl implements ICategory {
 
     private final ICategoryRepo categoryRepo;
 

@@ -3,7 +3,7 @@ package com.test.product_service.controller;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
-import com.test.product_service.service.impl.ProductImpl;
+import com.test.product_service.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductImpl productService;
+    private final ProductServiceImpl productService;
 
     @GetMapping("/get-all-products")
     public ResponseEntity<List<GetProductResponseDTO>> getAllProducts(){
