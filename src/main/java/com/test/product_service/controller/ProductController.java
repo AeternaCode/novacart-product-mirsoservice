@@ -4,6 +4,7 @@ import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class ProductController {
     }
     //add
     @PostMapping("/add-product")
-    public ResponseEntity<Void> addProduct(@RequestBody AddProductRequestDTO addProductRequestDTO){
+    public ResponseEntity<Void> addProduct(@Valid @RequestBody AddProductRequestDTO addProductRequestDTO){
         productService.addProduct(addProductRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -42,7 +43,7 @@ public class ProductController {
     }
     // update
     @PatchMapping("/update-product-by-id/{id}")
-    public ResponseEntity<GetProductResponseDTO> updateProductById(@PathVariable  Integer id, @RequestBody UpdateProductRequestDTO updateProductRequestDTO){
+    public ResponseEntity<GetProductResponseDTO> updateProductById(@PathVariable  Integer id, @Valid @RequestBody UpdateProductRequestDTO updateProductRequestDTO){
         return ResponseEntity.ok(productService.updateProductById(id,updateProductRequestDTO));
     }
 }

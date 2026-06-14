@@ -3,6 +3,7 @@ package com.test.product_service.controller;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class CategoryController {
     }
     //add
     @PostMapping("/add-category")
-    public ResponseEntity<Void> addCategory(@RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
+    public ResponseEntity<Void> addCategory(@Valid @RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
         categoryService.addCategory(addCategoryRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -41,7 +42,7 @@ public class CategoryController {
     }
     // update
     @PatchMapping("/update-category-by-id/{id}")
-    public ResponseEntity<GetCategoryResponseDTO> updateCategoryById(@PathVariable  Integer id, @RequestBody AddUpdateCategoryRequestDTO  updateCategoryRequestDTO){
+    public ResponseEntity<GetCategoryResponseDTO> updateCategoryById(@PathVariable  Integer id,@Valid @RequestBody AddUpdateCategoryRequestDTO  updateCategoryRequestDTO){
         return ResponseEntity.ok(categoryService.updateCategoryById(id,updateCategoryRequestDTO));
     }
 }
