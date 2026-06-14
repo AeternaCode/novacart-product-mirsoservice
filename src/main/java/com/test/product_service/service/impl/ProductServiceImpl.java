@@ -36,7 +36,10 @@ public class ProductServiceImpl implements IProduct{
 
     @Override
     public void addProduct(AddProductRequestDTO addProductRequestDTO) {
-        Product product = ProductMapper.toProductEntity(addProductRequestDTO);
+        Category category = categoryRepo.findById(addProductRequestDTO.categoryId())
+                .orElseThrow(() -> new RuntimeException("No Category Found"));
+
+        Product product = ProductMapper.toProductEntity(addProductRequestDTO, category);
         productRepo.save(product);
     }
 
