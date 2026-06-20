@@ -5,6 +5,7 @@ import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
+import com.test.product_service.error_handling.custom_exception.ProductNotFoundException;
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.repository.IProductRepo;
@@ -30,7 +31,7 @@ public class ProductServiceImpl implements IProduct{
     @Override
     public GetProductResponseDTO getProductById(Integer id){
         Product product = productRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("No Product Found"));
+                .orElseThrow(() -> new ProductNotFoundException("No Product Found with the given id : "+ id));
         return ProductMapper.toGetProductResponseDTO(product);
     }
 

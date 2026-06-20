@@ -3,6 +3,7 @@ package com.test.product_service.service.impl;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
+import com.test.product_service.error_handling.custom_exception.CategoryNotFoundException;
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
@@ -26,7 +27,7 @@ public class CategoryServiceImpl implements ICategory {
     @Override
     public GetCategoryResponseDTO getCategoryById(Integer id) {
         Category category = categoryRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("No Category Found"));
+                .orElseThrow(() -> new CategoryNotFoundException("No Category Found  with the given id : "+ id));
         return CategoryMapper.toDTO(category);
     }
 
