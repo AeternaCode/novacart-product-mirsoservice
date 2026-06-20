@@ -2,6 +2,7 @@ package com.test.product_service.controller;
 
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
+import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
@@ -34,15 +35,15 @@ public class ProductController {
     }
     //add
     @PostMapping("/add-product")
-    public ResponseEntity<Void> addProduct(@Valid @RequestBody AddProductRequestDTO addProductRequestDTO){
-        productService.addProduct(addProductRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<AddDeleteResponseDTO> addProduct(@Valid @RequestBody AddProductRequestDTO addProductRequestDTO){
+        AddDeleteResponseDTO addProductResponseDTO = productService.addProduct(addProductRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addProductResponseDTO);
     }
     // delete
     @DeleteMapping("/remove-product/{id}")
-    public ResponseEntity<Void> removeProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
-        productService.removeProductById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<AddDeleteResponseDTO> removeProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+       AddDeleteResponseDTO addDeleteResponseDTO = productService.removeProductById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(addDeleteResponseDTO);
     }
     // update
     @PatchMapping("/update-product-by-id/{id}")

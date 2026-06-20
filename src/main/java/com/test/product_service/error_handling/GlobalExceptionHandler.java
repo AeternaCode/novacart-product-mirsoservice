@@ -1,7 +1,6 @@
 package com.test.product_service.error_handling;
 
-import com.test.product_service.error_handling.custom_exception.CategoryNotFoundException;
-import com.test.product_service.error_handling.custom_exception.ProductNotFoundException;
+import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.error_handling.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -13,12 +12,12 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException e, HttpServletRequest request) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException  e, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
-                .error("PRODUCT_NOT_FOUND")
+                .error(e.getErrorMsg())
                 .message(e.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -26,16 +25,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCategoryNotFoundException(CategoryNotFoundException e, HttpServletRequest request) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("CATEGORY_NOT_FOUND")
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("SOMETHING_WENT_WRONG")
                 .message(e.getMessage())
                 .path(request.getRequestURI())
                 .build();
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

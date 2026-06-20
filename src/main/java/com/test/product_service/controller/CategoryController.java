@@ -1,6 +1,7 @@
 package com.test.product_service.controller;
 
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
+import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
@@ -33,15 +34,15 @@ public class CategoryController {
     }
     //add
     @PostMapping("/add-category")
-    public ResponseEntity<Void> addCategory(@Valid @RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
-        categoryService.addCategory(addCategoryRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<AddDeleteResponseDTO> addCategory(@Valid @RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
+        AddDeleteResponseDTO addDeleteResponseDTO = categoryService.addCategory(addCategoryRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addDeleteResponseDTO);
     }
     // delete
     @DeleteMapping("/remove-category/{id}")
-    public ResponseEntity<Void> removeCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
-        categoryService.removeCategoryById(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<AddDeleteResponseDTO> removeCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        AddDeleteResponseDTO addDeleteResponseDTO = categoryService.removeCategoryById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(addDeleteResponseDTO);
     }
     // update
     @PatchMapping("/update-category-by-id/{id}")

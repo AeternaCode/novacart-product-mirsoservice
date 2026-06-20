@@ -2,14 +2,15 @@ package com.test.product_service.service.impl;
 
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
+import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
-import com.test.product_service.error_handling.custom_exception.ProductNotFoundException;
+import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.product.ProductMapper;
-import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
+import com.test.product_service.uttils.VerifyResource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import java.util.List;
 public class ProductServiceImpl implements IProduct{
 
     private final IProductRepo productRepo;
-    private final ICategoryRepo categoryRepo;
+    private final VerifyResource verifyResource;
 
     @Override
     public List<GetProductResponseDTO> getAllProducts() {
@@ -30,29 +31,34 @@ public class ProductServiceImpl implements IProduct{
 
     @Override
     public GetProductResponseDTO getProductById(Integer id){
-        Product product = productRepo.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("No Product Found with the given id : "+ id));
+        Product product = verifyResource.verifyOrGetProductById(id);
         return ProductMapper.toGetProductResponseDTO(product);
     }
 
     @Override
-    public void addProduct(AddProductRequestDTO addProductRequestDTO) {
-        Category category = categoryRepo.findById(addProductRequestDTO.categoryId())
-                .orElseThrow(() -> new RuntimeException("No Category Found"));
+    public AddDeleteResponseDTO addProduct(AddProductRequestDTO addProductRequestDTO) {
+        Category category = verifyResource.verifyOrGetCategoryById(addProductRequestDTO.categoryId());
 
         Product product = ProductMapper.toProductEntity(addProductRequestDTO, category);
         productRepo.save(product);
+        return AddDeleteResponseDTO.builder().id(product.getId()).message("Product added successfully").build();
     }
 
     @Override
-    public void removeProductById(Integer id) {
-        productRepo.deleteById(id);
+    public AddDeleteResponseDTO removeProductById(Integer id) {
+        if(verifyResource.verifyOrGetProductById(id) != null) {
+            productRepo.deleteById(id);
+            return  AddDeleteResponseDTO.builder()
+                    .id(null)
+                    .message("Product removed successfully")
+                    .build();
+        }
+        else throw new ResourceNotFoundException ("No Product Found with the given id : "+ id+ "Delete Unsuccessful", "PRODUCT_NOT_FOUND");
     }
 
     @Override
     public GetProductResponseDTO updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
-        Product product = productRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("No Product Found"));
+        Product product = verifyResource.verifyOrGetProductById(id);
 
         if(updateProductRequestDTO.productName() != null)
             product.setProductName(updateProductRequestDTO.productName());
@@ -84,15 +90,12 @@ public class ProductServiceImpl implements IProduct{
             product.setRating(updateProductRequestDTO.rating());
 
         if(updateProductRequestDTO.categoryId() != null){
-            Category category = categoryRepo.findById(
-                            updateProductRequestDTO.categoryId())
-                    .orElseThrow(() ->
-                            new RuntimeException("Category not found"));
-
+            Category category = verifyResource.verifyOrGetCategoryById(updateProductRequestDTO.categoryId());
             product.setCategory(category);
         }
         productRepo.save(product);
         return ProductMapper.toGetProductResponseDTO(product);
 
     }
+
 }
