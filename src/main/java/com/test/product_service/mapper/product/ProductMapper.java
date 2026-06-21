@@ -38,9 +38,8 @@ public class ProductMapper {
         return mapGetProductResponseDTO(product);
     }
 
-    public static Product toProductEntity(AddProductRequestDTO addProductRequestDTO) {
-        Category category = new Category();
-        category.setId(addProductRequestDTO.categoryId());
+    public static Product toProductEntity(AddProductRequestDTO addProductRequestDTO, Category category) {
+
         return Product.builder()
                 .productName(addProductRequestDTO.productName())
                 .productImageUrl(addProductRequestDTO.productImageUrl())
