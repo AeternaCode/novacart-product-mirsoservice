@@ -6,7 +6,6 @@ import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
-import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
@@ -46,14 +45,12 @@ public class ProductServiceImpl implements IProduct{
 
     @Override
     public AddDeleteResponseDTO removeProductById(Integer id) {
-        if(verifyResource.verifyOrGetProductById(id) != null) {
+        verifyResource.verifyOrGetProductById(id);
             productRepo.deleteById(id);
             return  AddDeleteResponseDTO.builder()
                     .id(null)
                     .message("Product removed successfully")
                     .build();
-        }
-        else throw new ResourceNotFoundException ("No Product Found with the given id : "+ id+ "Delete Unsuccessful", "PRODUCT_NOT_FOUND");
     }
 
     @Override
