@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+
+  product-service:
+
+    build: .
+
+    container_name: product-service
+
+    environment:
+      DB_URL: jdbc:mysql://host.docker.internal:3307/product_db
+      DB_USERNAME: product_admin
+      DB_PASSWORD: product_admin123
+
+    ports:
+      - "8081:8081"
