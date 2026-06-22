@@ -3,17 +3,18 @@ package com.test.product_service.controller;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -24,8 +25,10 @@ public class ProductController {
     private final ProductServiceImpl productService;
 
     @GetMapping("/get-all-products")
-    public ResponseEntity<List<GetProductResponseDTO>> getAllProducts(){
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<PageResponse<GetProductResponseDTO>> getAllProducts(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size){
+        return ResponseEntity.ok(productService.getAllProducts(pageNumber, size));
     }
 
     // get by id

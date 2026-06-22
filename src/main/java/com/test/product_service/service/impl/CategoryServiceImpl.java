@@ -2,6 +2,7 @@ package com.test.product_service.service.impl;
 
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
 import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.mapper.category.CategoryMapper;
@@ -9,6 +10,9 @@ import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
 import com.test.product_service.uttils.VerifyResource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +25,23 @@ public class CategoryServiceImpl implements ICategory {
     private final VerifyResource verifyResource;
 
     @Override
-    public List<GetCategoryResponseDTO> getAllCategories() {
-        List<Category> category = categoryRepo.findAll();
-        return CategoryMapper.toDto(category);
+    public PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size) {
+        Pageable pageable = PageRequest.of(pageNumber,size);
+        Page<Category> page = categoryRepo.findAll(pageable);
+        List<Category> category = page.getContent();
+
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+
+        return PageResponse.<GetCategoryResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
+                .content(listDto)
+                .pageNumber(pageNumber)
+                .pageSize(size)
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
+                .build();
     }
 
     @Override

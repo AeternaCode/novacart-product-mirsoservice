@@ -2,17 +2,17 @@ package com.test.product_service.controller;
 
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
 import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -23,8 +23,11 @@ public class CategoryController {
     private final CategoryServiceImpl categoryService;
 
     @GetMapping("/get-all-categories")
-    public ResponseEntity<List<GetCategoryResponseDTO>> getAllCategories(){
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<PageResponse<GetCategoryResponseDTO>> getAllCategories(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size
+    ){
+        return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size));
     }
 
     // get by id
