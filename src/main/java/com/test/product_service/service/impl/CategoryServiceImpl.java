@@ -12,6 +12,7 @@ import com.test.product_service.uttils.VerifyResource;
 import com.test.product_service.uttils.enums.CategorySortField;
 import com.test.product_service.uttils.enums.SortDirection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CategoryServiceImpl implements ICategory {
 
     private final ICategoryRepo categoryRepo;
@@ -41,6 +43,8 @@ public class CategoryServiceImpl implements ICategory {
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
 
+
+        log.info("List of Category : {}", listDto);
         return PageResponse.<GetCategoryResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
                 .content(listDto)
                 .pageNumber(page.getNumber())
@@ -56,13 +60,16 @@ public class CategoryServiceImpl implements ICategory {
     @Override
     public GetCategoryResponseDTO getCategoryById(Integer id) {
         Category category = verifyResource.verifyOrGetCategoryById(id);
+        log.info("Successfully Get category with id : {}", category.getId());
         return CategoryMapper.toDTO(category);
     }
 
     @Override
     public AddDeleteResponseDTO addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
         Category category = CategoryMapper.toEntity(addCategoryRequestDTO);
+        log.info("Creating category: {}", addCategoryRequestDTO.categoryName());
        Category savedcategory =  categoryRepo.save(category);
+        log.info("Category created successfully. ProductId={}", category.getId());
         return AddDeleteResponseDTO.builder()
                 .id(savedcategory.getId())
                 .message("Category Added Successfully with name : "+ savedcategory.getCategoryName())
@@ -72,6 +79,7 @@ public class CategoryServiceImpl implements ICategory {
     @Override
     public AddDeleteResponseDTO removeCategoryById(Integer id) {
         verifyResource.verifyOrGetCategoryById(id);
+        log.info("Deleting category with id {}", id);
         categoryRepo.deleteById(id);
         return AddDeleteResponseDTO.builder()
                 .id(null)
@@ -87,6 +95,7 @@ public class CategoryServiceImpl implements ICategory {
            category.setCategoryName(updateCategoryRequestDTO.categoryName());
        }
        categoryRepo.save(category);
+        log.info("Category updated successfully. CategoryId={}", category.getId());
        return CategoryMapper.toDTO(category);
     }
 

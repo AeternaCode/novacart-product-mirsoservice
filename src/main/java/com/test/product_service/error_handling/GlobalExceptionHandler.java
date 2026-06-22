@@ -4,6 +4,7 @@ import com.test.product_service.error_handling.custom_exception.ResourceNotFound
 import com.test.product_service.error_handling.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,18 +17,19 @@ import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException  e, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException  ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
-                .error(e.getErrorMsg())
-                .message(e.getMessage())
+                .error(ex.getErrorMsg())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
-
+        log.error("Resource not found", ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
@@ -51,7 +53,7 @@ public class GlobalExceptionHandler {
                         .message(errorMessage)
                         .path(request.getRequestURI())
                         .build();
-
+        log.error("Validation failed", ex);
         return ResponseEntity.badRequest().body(error);
     }
 
@@ -68,7 +70,7 @@ public class GlobalExceptionHandler {
                         .message(ex.getMessage())
                         .path(request.getRequestURI())
                         .build();
-
+        log.error("Constraint violation failed", ex);
         return ResponseEntity.badRequest().body(error);
     }
 
@@ -81,10 +83,10 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("DATABASE_CONSTRAINT_VIOLATION")
-                .message(ex.getMostSpecificCause().getMessage())
+                .message("DataIntegrity Violation")
                 .path(request.getRequestURI())
                 .build();
-
+        log.error("Data integrity violation failed", ex);
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
@@ -117,20 +119,20 @@ public class GlobalExceptionHandler {
                 .message(message)
                 .path(request.getRequestURI())
                 .build();
-
+        log.error("Type mismatch for ENUM", ex);
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("SOMETHING_WENT_WRONG")
-                .message(e.getMessage())
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
-
+        log.error("Unexpected error occurred", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 }

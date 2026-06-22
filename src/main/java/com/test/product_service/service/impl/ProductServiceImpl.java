@@ -14,6 +14,7 @@ import com.test.product_service.uttils.VerifyResource;
 import com.test.product_service.uttils.enums.ProductSortField;
 import com.test.product_service.uttils.enums.SortDirection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import static com.test.product_service.mapper.product.ProductMapper.toGetProduct
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements IProduct{
 
     private final IProductRepo productRepo;
@@ -45,6 +47,7 @@ public class ProductServiceImpl implements IProduct{
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);
 
+        log.info("List of Products : {}", listDto);
         return PageResponse.<GetProductResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
                 .content(listDto)
                 .pageNumber(pageNumber)
@@ -60,21 +63,24 @@ public class ProductServiceImpl implements IProduct{
     @Override
     public GetProductResponseDTO getProductById(Integer id){
         Product product = verifyResource.verifyOrGetProductById(id);
+        log.info("Successfully Get product with id : {}", product.getId());
         return toGetProductResponseDTO(product);
     }
 
     @Override
     public AddDeleteResponseDTO addProduct(AddProductRequestDTO addProductRequestDTO) {
         Category category = verifyResource.verifyOrGetCategoryById(addProductRequestDTO.categoryId());
-
+        log.info("Creating product: {}", addProductRequestDTO.productName());
         Product product = ProductMapper.toProductEntity(addProductRequestDTO, category);
         productRepo.save(product);
+        log.info("Product created successfully. ProductId={}", product.getId());
         return AddDeleteResponseDTO.builder().id(product.getId()).message("Product added successfully").build();
     }
 
     @Override
     public AddDeleteResponseDTO removeProductById(Integer id) {
         verifyResource.verifyOrGetProductById(id);
+        log.info("Deleting product with id {}", id);
             productRepo.deleteById(id);
             return  AddDeleteResponseDTO.builder()
                     .id(null)
@@ -85,6 +91,8 @@ public class ProductServiceImpl implements IProduct{
     @Override
     public GetProductResponseDTO updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product product = verifyResource.verifyOrGetProductById(id);
+
+        log.info("Updating product with id {}", id);
 
         if(updateProductRequestDTO.productName() != null)
             product.setProductName(updateProductRequestDTO.productName());
@@ -120,6 +128,7 @@ public class ProductServiceImpl implements IProduct{
             product.setCategory(category);
         }
         productRepo.save(product);
+        log.info("Product updated successfully. ProductId={}", product.getId());
         return toGetProductResponseDTO(product);
 
     }
