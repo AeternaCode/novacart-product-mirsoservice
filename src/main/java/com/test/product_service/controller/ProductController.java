@@ -6,6 +6,8 @@ import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductServiceImpl;
+import com.test.product_service.uttils.enums.ProductSortField;
+import com.test.product_service.uttils.enums.SortDirection;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -28,8 +30,8 @@ public class ProductController {
     public ResponseEntity<PageResponse<GetProductResponseDTO>> getAllProducts(
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
             @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
-            @RequestParam(defaultValue = "id") String  sortBy,
-            @RequestParam(defaultValue = "asc") String  direction){
+            @RequestParam(defaultValue = "ID") ProductSortField sortBy,
+            @RequestParam(defaultValue = "ASC") SortDirection direction){
         return ResponseEntity.ok(productService.getAllProducts(pageNumber, size, sortBy, direction));
     }
 

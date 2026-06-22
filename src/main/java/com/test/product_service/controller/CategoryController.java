@@ -5,6 +5,8 @@ import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryServiceImpl;
+import com.test.product_service.uttils.enums.CategorySortField;
+import com.test.product_service.uttils.enums.SortDirection;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -26,8 +28,8 @@ public class CategoryController {
     public ResponseEntity<PageResponse<GetCategoryResponseDTO>> getAllCategories(
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
             @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
-             @RequestParam(defaultValue = "id") String  sortBy,
-            @RequestParam(defaultValue = "asc") String  direction
+             @RequestParam(defaultValue = "ID") CategorySortField sortBy,
+            @RequestParam(defaultValue = "ASC") SortDirection direction
     ){
         return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size, sortBy, direction));
     }

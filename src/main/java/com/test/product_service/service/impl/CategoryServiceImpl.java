@@ -9,6 +9,8 @@ import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
 import com.test.product_service.uttils.VerifyResource;
+import com.test.product_service.uttils.enums.CategorySortField;
+import com.test.product_service.uttils.enums.SortDirection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,9 +28,12 @@ public class CategoryServiceImpl implements ICategory {
     private final VerifyResource verifyResource;
 
     @Override
-    public PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size, String sortBy, String direction) {
+    public PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
         // Creating Sort
-        Sort sort = direction.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Sort sort = direction == SortDirection.DESC ?
+                Sort.by(sortBy.getCategorySortValue()).descending()
+                :
+                Sort.by(sortBy.getCategorySortValue()).ascending();
 
         Pageable pageable = PageRequest.of(pageNumber,size, sort);
         Page<Category> page = categoryRepo.findAll(pageable);

@@ -11,6 +11,8 @@ import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
 import com.test.product_service.uttils.VerifyResource;
+import com.test.product_service.uttils.enums.ProductSortField;
+import com.test.product_service.uttils.enums.SortDirection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,10 +31,13 @@ public class ProductServiceImpl implements IProduct{
     private final VerifyResource verifyResource;
 
     @Override
-    public PageResponse<GetProductResponseDTO> getAllProducts(int pageNumber, int size, String sortBy, String direction) {
+    public PageResponse<GetProductResponseDTO> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
 
         // Creating Sort
-        Sort sort = direction.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+        Sort sort = direction == SortDirection.DESC ?
+                Sort.by(sortBy.getProductSortValue()).descending()
+                :
+                Sort.by(sortBy.getProductSortValue()).ascending();
 
         Pageable pageable = PageRequest.of(pageNumber,size,sort);
         Page<Product> page = productRepo.findAll(pageable);
