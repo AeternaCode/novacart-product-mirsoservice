@@ -25,7 +25,7 @@ public class CategoryMapper {
 
     public static  Category toEntity(AddUpdateCategoryRequestDTO getCategoryResponseDTO) {
         return Category.builder()
-                .categoryName(getCategoryResponseDTO.name())
+                .categoryName(getCategoryResponseDTO.categoryName())
                 .build();
     }
 }
