@@ -38,8 +38,8 @@ public class CategoryServiceImpl implements ICategory {
 
         return PageResponse.<GetCategoryResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
                 .content(listDto)
-                .pageNumber(pageNumber)
-                .pageSize(size)
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .numberOfElements(page.getNumberOfElements())
