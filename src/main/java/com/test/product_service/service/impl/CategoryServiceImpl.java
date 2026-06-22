@@ -82,8 +82,9 @@ public class CategoryServiceImpl implements ICategory {
     @Override
     public GetCategoryResponseDTO updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
        Category category = verifyResource.verifyOrGetCategoryById(id);
-       if(updateCategoryRequestDTO.name() != null && !updateCategoryRequestDTO.name().isEmpty()){
-           category.setCategoryName(updateCategoryRequestDTO.name());
+        log.info("Updating category with id {}", id);
+       if(updateCategoryRequestDTO.categoryName() != null && !updateCategoryRequestDTO.categoryName().isEmpty()){
+           category.setCategoryName(updateCategoryRequestDTO.categoryName());
        }
        categoryRepo.save(category);
        return CategoryMapper.toDTO(category);
