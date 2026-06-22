@@ -27,8 +27,10 @@ public class ProductController {
     @GetMapping("/get-all-products")
     public ResponseEntity<PageResponse<GetProductResponseDTO>> getAllProducts(
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
-            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size){
-        return ResponseEntity.ok(productService.getAllProducts(pageNumber, size));
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
+            @RequestParam(defaultValue = "id") String  sortBy,
+            @RequestParam(defaultValue = "asc") String  direction){
+        return ResponseEntity.ok(productService.getAllProducts(pageNumber, size, sortBy, direction));
     }
 
     // get by id

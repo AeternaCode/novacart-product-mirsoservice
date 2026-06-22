@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +26,11 @@ public class CategoryServiceImpl implements ICategory {
     private final VerifyResource verifyResource;
 
     @Override
-    public PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size) {
-        Pageable pageable = PageRequest.of(pageNumber,size);
+    public PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size, String sortBy, String direction) {
+        // Creating Sort
+        Sort sort = direction.equals("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(pageNumber,size, sort);
         Page<Category> page = categoryRepo.findAll(pageable);
         List<Category> category = page.getContent();
 

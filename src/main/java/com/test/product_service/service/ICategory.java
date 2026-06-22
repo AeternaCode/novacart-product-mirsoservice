@@ -6,7 +6,7 @@ import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 
 public interface ICategory {
-    PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size);
+    PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size, String sortBy, String direction);
     GetCategoryResponseDTO getCategoryById(Integer id);
     AddDeleteResponseDTO addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO);
     AddDeleteResponseDTO removeCategoryById(Integer id);

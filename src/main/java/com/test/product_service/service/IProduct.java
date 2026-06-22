@@ -7,7 +7,7 @@ import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 
 public interface IProduct {
-    PageResponse<GetProductResponseDTO> getAllProducts(int pageNumber, int size);
+    PageResponse<GetProductResponseDTO> getAllProducts(int pageNumber, int size, String sortBy, String direction);
     GetProductResponseDTO getProductById(Integer id);
     AddDeleteResponseDTO addProduct(AddProductRequestDTO addProductRequestDTO);
     AddDeleteResponseDTO removeProductById(Integer id);

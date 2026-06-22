@@ -25,9 +25,11 @@ public class CategoryController {
     @GetMapping("/get-all-categories")
     public ResponseEntity<PageResponse<GetCategoryResponseDTO>> getAllCategories(
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
-            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
+             @RequestParam(defaultValue = "id") String  sortBy,
+            @RequestParam(defaultValue = "asc") String  direction
     ){
-        return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size));
+        return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size, sortBy, direction));
     }
 
     // get by id
