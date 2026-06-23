@@ -21,9 +21,6 @@ public class Category {
     @Column(name = "category_name", unique = true)
     private String categoryName;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<Product> products;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -41,6 +38,10 @@ public class Category {
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
+
+
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private List<Product> products;
 
     @PrePersist
     public void prePersist() {
