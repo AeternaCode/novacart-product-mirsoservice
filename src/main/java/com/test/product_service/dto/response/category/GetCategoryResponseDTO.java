@@ -9,6 +9,9 @@ public record GetCategoryResponseDTO(
         int id,
         String categoryName,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        Integer createdBy,
+        Integer updatedBy,
+        boolean isActive
 )
 {}

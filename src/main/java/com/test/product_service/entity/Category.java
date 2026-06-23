@@ -30,6 +30,18 @@ public class Category {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "created_by", nullable = false)
+    @Builder.Default
+    private Integer createdBy = 1111;
+
+    @Column(name = "updated_by", nullable = false)
+    @Builder.Default
+    private Integer updatedBy = 1111;
+
+    @Column(name = "is_active", nullable = false)
+    @Builder.Default
+    private Boolean isActive = true;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

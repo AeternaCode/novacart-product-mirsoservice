@@ -16,6 +16,9 @@ public class CategoryMapper {
                 .categoryName(category.getCategoryName())
                 .createdAt(category.getCreatedAt())
                 .updatedAt(category.getUpdatedAt())
+                .createdBy(category.getCreatedBy())
+                .updatedBy(category.getUpdatedBy())
+                .isActive(category.getIsActive())
                 .build();
     }
 
@@ -25,6 +28,9 @@ public class CategoryMapper {
                         .categoryName(cat.getCategoryName())
                         .createdAt(cat.getCreatedAt())
                         .updatedAt(cat.getUpdatedAt())
+                        .createdBy(cat.getCreatedBy())
+                        .updatedBy(cat.getUpdatedBy())
+                        .isActive(cat.getIsActive())
                         .build()
         ).toList();
     }
