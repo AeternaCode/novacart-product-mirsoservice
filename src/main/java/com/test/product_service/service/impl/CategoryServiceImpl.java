@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -45,7 +46,7 @@ public class CategoryServiceImpl implements ICategory {
         );
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
         Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
-        Page<Category> page = categoryRepo.findAll(pageable);
+        Page<Category> page = categoryRepo.findByDeletedAtIsNull(pageable);
         List<Category> category = page.getContent();
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
@@ -87,14 +88,75 @@ public class CategoryServiceImpl implements ICategory {
 
     @Override
     public ApiResponse<Integer> removeCategoryById(Integer id) {
-        verifyResource.verifyOrGetCategoryById(id);
+        Category category = verifyResource.verifyOrGetCategoryById(id);
         log.info("Deleting category with id {}", id);
         categoryRepo.deleteById(id);
 
         return ApiResponse.<Integer>builder()
                 .success(true)
-                .message("Category Removed Successfully with id : "+ id)
+                .message("Category Removed Successfully with id : "+ category.getId())
                 .data(null)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Integer> softRemoveCategoryById(Integer id) {
+        Category category = verifyResource.verifyOrGetCategoryById(id);
+        log.info("Soft Deleting category with id {}", id);
+        category.setDeletedAt(LocalDateTime.now());
+        category.setIsActive(false);
+
+        categoryRepo.save(category);
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Category Removed Successfully with id : "+ category.getId())
+                .data(null)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Integer> restoreCategoryById(Integer id) {
+        Category category = verifyResource.verifyOrGetCategoryById(id);
+        log.info("Restore category with id {}", id);
+        category.setDeletedAt(null);
+        category.setIsActive(true);
+
+        categoryRepo.save(category);
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Category Restored Successfully with id : "+ id)
+                .data(category.getId())
+                .build();
+    }
+
+    @Override
+    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
+        // Creating Sort
+        Sort sort = direction == SortDirection.DESC ?
+                Sort.by(sortBy.getCategorySortValue()).descending()
+                :
+                Sort.by(sortBy.getCategorySortValue()).ascending();
+
+        int pageSize = Math.min(
+                size,
+                paginationProperties.maxPageSize()
+        );
+        if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
+
+        Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
+        Page<Category> page = categoryRepo.findByDeletedAtIsNotNull(pageable);
+        List<Category> category = page.getContent();
+
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+
+        log.info("List of Category : {}", listDto);
+
+        return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
+                .success(true)
+                .message("Deleted Category List fetched successfully")
+                .data(CategoryMapper.toPageResponse(listDto, page))
                 .build();
     }
 

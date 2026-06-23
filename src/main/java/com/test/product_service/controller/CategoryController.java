@@ -66,13 +66,49 @@ public class CategoryController {
 
     @Operation(
             summary = "Delete a category",
-            description = "Soft deletes a category using category ID"
+            description = "Permanently Deletes a category using category ID"
     )
-    @DeleteMapping("/remove-category/{id}")
+    @DeleteMapping("/remove-category/{id}/permanent")
     public ResponseEntity<ApiResponse<Integer>> removeCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(categoryService.removeCategoryById(id));
+    }
+
+    @Operation(
+            summary = "Soft Delete a category",
+            description = "Soft deletes a category using category ID"
+    )
+    @DeleteMapping("/remove-category/{id}")
+    public ResponseEntity<ApiResponse<Integer>> softRemoveCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryService.softRemoveCategoryById(id));
+    }
+
+    @Operation(
+            summary = "Restore a category",
+            description = "Restore Soft deleted category using category ID"
+    )
+    @PatchMapping("/restore-category/{id}")
+    public ResponseEntity<ApiResponse<Integer>> restoreCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryService.restoreCategoryById(id));
+    }
+
+    @Operation(
+            summary = "Get all deleted categories",
+            description = "Returns paginated list of deleted categories with sorting support"
+    )
+    @GetMapping("/get-deleted-category")
+    public ResponseEntity<ApiResponse<PageResponse<GetCategoryResponseDTO>>> getDeletedCategory(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
+            @RequestParam(defaultValue = "ID") CategorySortField sortBy,
+            @RequestParam(defaultValue = "ASC") SortDirection direction
+    ){
+        return ResponseEntity.ok(categoryService.getDeletedCategory(pageNumber, size, sortBy, direction));
     }
 
     @Operation(

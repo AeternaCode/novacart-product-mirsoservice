@@ -63,6 +63,9 @@ public class Product {
     @Builder.Default
     private Integer updatedBy = 1111;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
