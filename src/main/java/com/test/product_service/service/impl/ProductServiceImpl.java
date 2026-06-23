@@ -1,5 +1,6 @@
 package com.test.product_service.service.impl;
 
+import com.test.product_service.config.PaginationProperties;
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
@@ -31,6 +32,7 @@ public class ProductServiceImpl implements IProduct{
 
     private final IProductRepo productRepo;
     private final VerifyResource verifyResource;
+    private final PaginationProperties paginationProperties;
 
     @Override
     public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
@@ -41,7 +43,10 @@ public class ProductServiceImpl implements IProduct{
                 :
                 Sort.by(sortBy.getProductSortValue()).ascending();
 
-        Pageable pageable = PageRequest.of(pageNumber,size,sort);
+        int pageSize =  Math.min(size, paginationProperties.maxPageSize());
+        if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
+
+        Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
         Page<Product> page = productRepo.findAll(pageable);
         List<Product> products = page.getContent(); // actual data
 

@@ -1,5 +1,6 @@
 package com.test.product_service.service.impl;
 
+import com.test.product_service.config.PaginationProperties;
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
@@ -28,6 +29,7 @@ public class CategoryServiceImpl implements ICategory {
 
     private final ICategoryRepo categoryRepo;
     private final VerifyResource verifyResource;
+    private final PaginationProperties paginationProperties;
 
     @Override
     public ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
@@ -37,7 +39,12 @@ public class CategoryServiceImpl implements ICategory {
                 :
                 Sort.by(sortBy.getCategorySortValue()).ascending();
 
-        Pageable pageable = PageRequest.of(pageNumber,size, sort);
+        int pageSize = Math.min(
+                size,
+                paginationProperties.maxPageSize()
+        );
+        if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
+        Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
         Page<Category> page = categoryRepo.findAll(pageable);
         List<Category> category = page.getContent();
 
