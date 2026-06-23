@@ -7,7 +7,8 @@ import lombok.Getter;
 @Getter
 public enum CategorySortField {
     ID("id"),
-    NAME("categoryName");
+    NAME("categoryName"),
+    CREATED_AT("createdAt");
 
     private final String categorySortValue;
     CategorySortField(String categorySortValue) {
