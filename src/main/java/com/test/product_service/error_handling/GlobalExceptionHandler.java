@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFoundException(ResourceNotFoundException  ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.NOT_FOUND)
                 .error(ex.getErrorMsg())
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error =
                 ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
-                        .status(HttpStatus.BAD_REQUEST.value())
+                        .status(HttpStatus.BAD_REQUEST)
                         .error("VALIDATION_ERROR")
                         .message(errorMessage)
                         .path(request.getRequestURI())
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
         ErrorResponse error =
                 ErrorResponse.builder()
                         .timestamp(LocalDateTime.now())
-                        .status(HttpStatus.BAD_REQUEST.value())
+                        .status(HttpStatus.BAD_REQUEST)
                         .error("VALIDATION_ERROR")
                         .message(ex.getMessage())
                         .path(request.getRequestURI())
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
                 .error("DATABASE_CONSTRAINT_VIOLATION")
                 .message("DataIntegrity Violation")
                 .path(request.getRequestURI())
@@ -114,7 +114,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.BAD_REQUEST)
                 .error("INVALID_PARAMETER")
                 .message(message)
                 .path(request.getRequestURI())
@@ -127,7 +127,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .error("SOMETHING_WENT_WRONG")
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
