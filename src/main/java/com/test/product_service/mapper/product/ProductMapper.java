@@ -1,9 +1,11 @@
 package com.test.product_service.mapper.product;
 
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -49,6 +51,19 @@ public class ProductMapper {
                 .stockQuantity(addProductRequestDTO.stockQuantity())
                 .isActive(addProductRequestDTO.isActive())
                 .category(category)
+                .build();
+    }
+
+    public static PageResponse<GetProductResponseDTO> toPageResponse(List<GetProductResponseDTO> listDto, Page<Product> page) {
+        return PageResponse.<GetProductResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
+                .content(listDto)
+                .pageNumber(page.getNumber())
+                .pageSize(page.getSize())
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .numberOfElements(page.getNumberOfElements())
+                .first(page.isFirst())
+                .last(page.isLast())
                 .build();
     }
 }

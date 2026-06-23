@@ -1,8 +1,8 @@
 package com.test.product_service.service.impl;
 
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
@@ -33,7 +33,7 @@ public class ProductServiceImpl implements IProduct{
     private final VerifyResource verifyResource;
 
     @Override
-    public PageResponse<GetProductResponseDTO> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
 
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
@@ -48,48 +48,52 @@ public class ProductServiceImpl implements IProduct{
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);
 
         log.info("List of Products : {}", listDto);
-        return PageResponse.<GetProductResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
-                .content(listDto)
-                .pageNumber(pageNumber)
-                .pageSize(size)
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .numberOfElements(page.getNumberOfElements())
-                .first(page.isFirst())
-                .last(page.isLast())
+        return ApiResponse.<PageResponse<GetProductResponseDTO>>builder()
+                .success(true)
+                .message("Product List fetched successfully")
+                .data(ProductMapper.toPageResponse(listDto, page))
                 .build();
     }
 
     @Override
-    public GetProductResponseDTO getProductById(Integer id){
+    public ApiResponse<GetProductResponseDTO> getProductById(Integer id){
         Product product = verifyResource.verifyOrGetProductById(id);
         log.info("Successfully Get product with id : {}", product.getId());
-        return toGetProductResponseDTO(product);
+        return ApiResponse.<GetProductResponseDTO>builder()
+                .success(true)
+                .message("Product fetched successfully with id : "+ product.getId())
+                .data(toGetProductResponseDTO(product))
+                .build();
     }
 
     @Override
-    public AddDeleteResponseDTO addProduct(AddProductRequestDTO addProductRequestDTO) {
+    public ApiResponse<Integer> addProduct(AddProductRequestDTO addProductRequestDTO) {
         Category category = verifyResource.verifyOrGetCategoryById(addProductRequestDTO.categoryId());
         log.info("Creating product: {}", addProductRequestDTO.productName());
         Product product = ProductMapper.toProductEntity(addProductRequestDTO, category);
         productRepo.save(product);
         log.info("Product created successfully. ProductId={}", product.getId());
-        return AddDeleteResponseDTO.builder().id(product.getId()).message("Product added successfully").build();
+        return  ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Product added successfully with id : " +  product.getId())
+                .data(product.getId())
+                .build();
     }
 
     @Override
-    public AddDeleteResponseDTO removeProductById(Integer id) {
+    public ApiResponse<Integer> removeProductById(Integer id) {
         verifyResource.verifyOrGetProductById(id);
         log.info("Deleting product with id {}", id);
             productRepo.deleteById(id);
-            return  AddDeleteResponseDTO.builder()
-                    .id(null)
-                    .message("Product removed successfully")
+            return    ApiResponse.<Integer>builder()
+                    .success(true)
+                    .message("Product removed successfully with id : " +  id)
+                    .data(null)
                     .build();
     }
 
     @Override
-    public GetProductResponseDTO updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
+    public ApiResponse<GetProductResponseDTO> updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product product = verifyResource.verifyOrGetProductById(id);
 
         log.info("Updating product with id {}", id);
@@ -129,7 +133,11 @@ public class ProductServiceImpl implements IProduct{
         }
         productRepo.save(product);
         log.info("Product updated successfully. ProductId={}", product.getId());
-        return toGetProductResponseDTO(product);
+        return   ApiResponse.<GetProductResponseDTO>builder()
+                .success(true)
+                .message("Product update successfully with id : " +  product.getId())
+                .data(toGetProductResponseDTO(product))
+                .build();
 
     }
 

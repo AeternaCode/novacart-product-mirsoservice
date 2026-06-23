@@ -1,7 +1,7 @@
 package com.test.product_service.service.impl;
 
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
@@ -30,7 +30,7 @@ public class CategoryServiceImpl implements ICategory {
     private final VerifyResource verifyResource;
 
     @Override
-    public PageResponse<GetCategoryResponseDTO> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
                 Sort.by(sortBy.getCategorySortValue()).descending()
@@ -43,52 +43,56 @@ public class CategoryServiceImpl implements ICategory {
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
 
-
         log.info("List of Category : {}", listDto);
-        return PageResponse.<GetCategoryResponseDTO>builder() // to Explicitly tell the type otherwise it will throw error
-                .content(listDto)
-                .pageNumber(page.getNumber())
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .numberOfElements(page.getNumberOfElements())
-                .first(page.isFirst())
-                .last(page.isLast())
+
+         return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
+                 .success(true)
+                 .message("Category List fetched successfully")
+                 .data(CategoryMapper.toPageResponse(listDto, page))
+                 .build();
+    }
+
+    @Override
+    public ApiResponse<GetCategoryResponseDTO> getCategoryById(Integer id) {
+        Category category = verifyResource.verifyOrGetCategoryById(id);
+        log.info("Successfully Get category with id : {}", category.getId());
+
+        return ApiResponse.<GetCategoryResponseDTO>builder()
+                .success(true)
+                .message("Category with id : " + category.getId() +" fetched successfully")
+                .data(CategoryMapper.toDTO(category))
                 .build();
     }
 
     @Override
-    public GetCategoryResponseDTO getCategoryById(Integer id) {
-        Category category = verifyResource.verifyOrGetCategoryById(id);
-        log.info("Successfully Get category with id : {}", category.getId());
-        return CategoryMapper.toDTO(category);
-    }
-
-    @Override
-    public AddDeleteResponseDTO addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
+    public ApiResponse<Integer> addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
         Category category = CategoryMapper.toEntity(addCategoryRequestDTO);
         log.info("Creating category: {}", addCategoryRequestDTO.categoryName());
        Category savedcategory =  categoryRepo.save(category);
         log.info("Category created successfully. ProductId={}", category.getId());
-        return AddDeleteResponseDTO.builder()
-                .id(savedcategory.getId())
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
                 .message("Category Added Successfully with name : "+ savedcategory.getCategoryName())
+                .data(savedcategory.getId())
                 .build();
     }
 
     @Override
-    public AddDeleteResponseDTO removeCategoryById(Integer id) {
+    public ApiResponse<Integer> removeCategoryById(Integer id) {
         verifyResource.verifyOrGetCategoryById(id);
         log.info("Deleting category with id {}", id);
         categoryRepo.deleteById(id);
-        return AddDeleteResponseDTO.builder()
-                .id(null)
-                .message("Category Removed Successfully")
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Category Removed Successfully with id : "+ id)
+                .data(null)
                 .build();
     }
 
     @Override
-    public GetCategoryResponseDTO updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
+    public ApiResponse<GetCategoryResponseDTO> updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
        Category category = verifyResource.verifyOrGetCategoryById(id);
         log.info("Updating category with id {}", id);
        if(updateCategoryRequestDTO.categoryName() != null && !updateCategoryRequestDTO.categoryName().isEmpty()){
@@ -96,7 +100,11 @@ public class CategoryServiceImpl implements ICategory {
        }
        categoryRepo.save(category);
         log.info("Category updated successfully. CategoryId={}", category.getId());
-       return CategoryMapper.toDTO(category);
+        return ApiResponse.<GetCategoryResponseDTO>builder()
+                .success(true)
+                .message("Category Removed Successfully with id : "+ id)
+                .data(CategoryMapper.toDTO(category))
+                .build();
     }
 
 }

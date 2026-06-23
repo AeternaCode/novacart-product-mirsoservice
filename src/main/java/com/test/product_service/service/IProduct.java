@@ -1,17 +1,17 @@
 package com.test.product_service.service;
 
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.uttils.enums.ProductSortField;
 import com.test.product_service.uttils.enums.SortDirection;
 
 public interface IProduct {
-    PageResponse<GetProductResponseDTO> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction);
-    GetProductResponseDTO getProductById(Integer id);
-    AddDeleteResponseDTO addProduct(AddProductRequestDTO addProductRequestDTO);
-    AddDeleteResponseDTO removeProductById(Integer id);
-    GetProductResponseDTO updateProductById( Integer id, UpdateProductRequestDTO updateProductRequestDTO);
+    ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction);
+    ApiResponse<GetProductResponseDTO> getProductById(Integer id);
+    ApiResponse<Integer> addProduct(AddProductRequestDTO addProductRequestDTO);
+    ApiResponse<Integer> removeProductById(Integer id);
+    ApiResponse<GetProductResponseDTO> updateProductById( Integer id, UpdateProductRequestDTO updateProductRequestDTO);
 }
