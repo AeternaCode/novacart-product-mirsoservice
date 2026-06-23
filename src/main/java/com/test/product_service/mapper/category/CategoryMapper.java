@@ -14,6 +14,8 @@ public class CategoryMapper {
         return GetCategoryResponseDTO.builder()
                 .id(category.getId())
                 .categoryName(category.getCategoryName())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
                 .build();
     }
 
@@ -21,6 +23,8 @@ public class CategoryMapper {
         return category.stream().map(cat -> GetCategoryResponseDTO.builder()
                         .id(cat.getId())
                         .categoryName(cat.getCategoryName())
+                        .createdAt(cat.getCreatedAt())
+                        .updatedAt(cat.getUpdatedAt())
                         .build()
         ).toList();
     }
