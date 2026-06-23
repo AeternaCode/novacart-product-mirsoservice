@@ -7,6 +7,8 @@ import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryServiceImpl;
 import com.test.product_service.uttils.enums.CategorySortField;
 import com.test.product_service.uttils.enums.SortDirection;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -20,10 +22,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
 @Validated
+@Tag(
+        name = "Category Management",
+        description = "APIs for managing product categories including create, update, delete and retrieval operations"
+)
 public class CategoryController {
 
     private final CategoryServiceImpl categoryService;
 
+    @Operation(
+            summary = "Get all categories",
+            description = "Returns paginated list of categories with sorting support"
+    )
     @GetMapping("/get-all-categories")
     public ResponseEntity<ApiResponse<PageResponse<GetCategoryResponseDTO>>> getAllCategories(
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
@@ -34,26 +44,41 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size, sortBy, direction));
     }
 
-    // get by id
+    @Operation(
+            summary = "Get category by ID",
+            description = "Returns category details using its unique identifier"
+    )
     @GetMapping("/get-category-by-id/{id}")
     public ResponseEntity<ApiResponse<GetCategoryResponseDTO>> getCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
-    //add
+
+    @Operation(
+            summary = "Create a new category",
+            description = "Creates a new category and returns generated category ID"
+    )
     @PostMapping("/add-category")
     public ResponseEntity<ApiResponse<Integer>> addCategory(@Valid @RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(categoryService.addCategory(addCategoryRequestDTO));
     }
-    // delete
+
+    @Operation(
+            summary = "Delete a category",
+            description = "Soft deletes a category using category ID"
+    )
     @DeleteMapping("/remove-category/{id}")
     public ResponseEntity<ApiResponse<Integer>> removeCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(categoryService.removeCategoryById(id));
     }
-    // update
+
+    @Operation(
+            summary = "Update category details",
+            description = "Updates an existing category"
+    )
     @PatchMapping("/update-category-by-id/{id}")
     public ResponseEntity<ApiResponse<GetCategoryResponseDTO>> updateCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id,@Valid @RequestBody AddUpdateCategoryRequestDTO  updateCategoryRequestDTO){
         return ResponseEntity.ok(categoryService.updateCategoryById(id,updateCategoryRequestDTO));

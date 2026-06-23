@@ -8,6 +8,8 @@ import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.service.impl.ProductServiceImpl;
 import com.test.product_service.uttils.enums.ProductSortField;
 import com.test.product_service.uttils.enums.SortDirection;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -22,10 +24,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 @Validated
+@Tag(
+        name = "Product Management",
+        description = "APIs for managing products including create, update, delete, retrieve and pagination operations"
+)
 public class ProductController {
 
     private final ProductServiceImpl productService;
 
+    @Operation(
+            summary = "Get all products",
+            description = "Returns paginated list of products with sorting support"
+    )
     @GetMapping("/get-all-products")
     public ResponseEntity<ApiResponse<PageResponse<GetProductResponseDTO>>> getAllProducts(
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
@@ -35,26 +45,41 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(pageNumber, size, sortBy, direction));
     }
 
-    // get by id
+    @Operation(
+            summary = "Get product by ID",
+            description = "Returns a single product using its unique identifier"
+    )
     @GetMapping("/get-product-by-id/{id}")
     public ResponseEntity<ApiResponse<GetProductResponseDTO>> getProductById(@PathVariable @Positive(message = "Id must be greater than 0")  Integer id){
         return ResponseEntity.ok(productService.getProductById(id));
     }
-    //add
+
+    @Operation(
+            summary = "Create a new product",
+            description = "Creates a new product and returns the generated product ID"
+    )
     @PostMapping("/add-product")
     public ResponseEntity<ApiResponse<Integer>> addProduct(@Valid @RequestBody AddProductRequestDTO addProductRequestDTO){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(productService.addProduct(addProductRequestDTO));
     }
-    // delete
+
+    @Operation(
+            summary = "Delete a product",
+            description = "Soft deletes a product using product ID"
+    )
     @DeleteMapping("/remove-product/{id}")
     public ResponseEntity<ApiResponse<Integer>> removeProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.removeProductById(id));
     }
-    // update
+
+    @Operation(
+            summary = "Update product details",
+            description = "Updates selected fields of an existing product"
+    )
     @PatchMapping("/update-product-by-id/{id}")
     public ResponseEntity<ApiResponse<GetProductResponseDTO>> updateProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id, @Valid @RequestBody UpdateProductRequestDTO updateProductRequestDTO){
         return ResponseEntity.ok(productService.updateProductById(id,updateProductRequestDTO));
