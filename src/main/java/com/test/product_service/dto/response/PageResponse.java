@@ -1,27 +1,25 @@
 package com.test.product_service.dto.response;
 
 import lombok.Builder;
-import lombok.Data;
 
 import java.util.List;
 
 @Builder
-@Data
-public class PageResponse<T> {
+public record PageResponse<T>(
+         List<T> content,
 
-    private List<T> content;
+         int pageNumber,
 
-    private int pageNumber;
+         int pageSize,
 
-    private int pageSize;
+         long totalElements,
 
-    private long totalElements;
+         int totalPages,
 
-    private int totalPages;
+         int numberOfElements,
 
-    private int numberOfElements;
+         boolean first,
 
-    private boolean first;
-
-    private boolean last;
+         boolean last
+) {
 }
