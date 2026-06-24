@@ -67,13 +67,58 @@ public class ProductController {
 
     @Operation(
             summary = "Delete a product",
-            description = "Soft deletes a product using product ID"
+            description = "Permanently deletes a product using product ID"
     )
-    @DeleteMapping("/remove-product/{id}")
+    @DeleteMapping("/remove-product/{id}/permanent")
     public ResponseEntity<ApiResponse<Integer>> removeProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(productService.removeProductById(id));
+    }
+
+    @Operation(
+            summary = "Soft Delete a product",
+            description = "Soft deletes a product using product ID"
+    )
+    @DeleteMapping("/remove-product/{id}")
+    public ResponseEntity<ApiResponse<Integer>> softRemoveProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.softRemoveProductById(id));
+    }
+
+    @Operation(
+            summary = "Restore a product",
+            description = "Restore Soft deleted product using product ID"
+    )
+    @PatchMapping("/restore-product/{id}")
+    public ResponseEntity<ApiResponse<Integer>> restoreProductById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(productService.restoreProductById(id));
+    }
+
+    @Operation(
+            summary = "Get all deleted products",
+            description = "Returns paginated list of deleted products with sorting support"
+    )
+    @GetMapping("/get-deleted-product")
+    public ResponseEntity<ApiResponse<PageResponse<GetProductResponseDTO>>> getDeletedProduct(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
+            @RequestParam(defaultValue = "ID") ProductSortField sortBy,
+            @RequestParam(defaultValue = "ASC") SortDirection direction
+    ){
+        return ResponseEntity.ok(productService.getDeletedProduct(pageNumber, size, sortBy, direction));
+    }
+
+    @Operation(
+            summary = "Get Deleted product by ID",
+            description = "Returns a single deleted product using its unique identifier"
+    )
+    @GetMapping("/get-deleted-product-by-id/{id}")
+    public ResponseEntity<ApiResponse<GetProductResponseDTO>> getDeletedProductById(@PathVariable @Positive(message = "Id must be greater than 0")  Integer id){
+        return ResponseEntity.ok(productService.getDeletedProductById(id));
     }
 
     @Operation(

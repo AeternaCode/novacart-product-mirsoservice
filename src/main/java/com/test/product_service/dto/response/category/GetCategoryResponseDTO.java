@@ -14,6 +14,7 @@ public record GetCategoryResponseDTO(
         LocalDateTime updatedAt,
         Integer createdBy,
         Integer updatedBy,
-        boolean isActive
+        boolean isActive,
+        LocalDateTime deletedAt
 )
 {}

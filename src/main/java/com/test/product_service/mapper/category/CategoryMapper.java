@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CategoryMapper {
 
-    public static  GetCategoryResponseDTO toDTO(Category category) {
+    private static GetCategoryResponseDTO mapGetProductResponseDTO(Category category){
         return GetCategoryResponseDTO.builder()
                 .id(category.getId())
                 .categoryName(category.getCategoryName())
@@ -19,20 +19,17 @@ public class CategoryMapper {
                 .createdBy(category.getCreatedBy())
                 .updatedBy(category.getUpdatedBy())
                 .isActive(category.getIsActive())
+                .deletedAt(category.getDeletedAt())
                 .build();
+    }
+    public static  GetCategoryResponseDTO toDTO(Category category) {
+       return mapGetProductResponseDTO(category);
     }
 
     public static  List<GetCategoryResponseDTO> toDto(List<Category> category) {
-        return category.stream().map(cat -> GetCategoryResponseDTO.builder()
-                        .id(cat.getId())
-                        .categoryName(cat.getCategoryName())
-                        .createdAt(cat.getCreatedAt())
-                        .updatedAt(cat.getUpdatedAt())
-                        .createdBy(cat.getCreatedBy())
-                        .updatedBy(cat.getUpdatedBy())
-                        .isActive(cat.getIsActive())
-                        .build()
-        ).toList();
+        return category.stream()
+                .map(CategoryMapper::mapGetProductResponseDTO)
+                .toList();
     }
 
     public static  Category toEntity(AddUpdateCategoryRequestDTO getCategoryResponseDTO) {

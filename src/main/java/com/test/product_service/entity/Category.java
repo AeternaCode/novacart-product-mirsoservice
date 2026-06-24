@@ -39,6 +39,9 @@ public class Category {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Product> products;
