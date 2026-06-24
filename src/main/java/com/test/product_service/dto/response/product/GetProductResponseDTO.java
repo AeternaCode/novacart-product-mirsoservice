@@ -35,6 +35,8 @@ public record GetProductResponseDTO(
 
         LocalDateTime updatedAt,
 
+        LocalDateTime deletedAt,
+
         Integer categoryId,
 
         String categoryName)

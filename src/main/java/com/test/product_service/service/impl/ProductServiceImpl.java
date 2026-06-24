@@ -8,6 +8,7 @@ import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
+import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
@@ -48,7 +49,7 @@ public class ProductServiceImpl implements IProduct{
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
-        Page<Product> page = productRepo.findByDeletedAtIsNull(pageable);
+        Page<Product> page = productRepo.findAllByDeletedAtIsNull(pageable);
         List<Product> products = page.getContent(); // actual data
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);
@@ -88,7 +89,7 @@ public class ProductServiceImpl implements IProduct{
 
     @Override
     public ApiResponse<Integer> removeProductById(Integer id) {
-        Product product = verifyResource.verifyOrGetProductById(id);
+        Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException ("No Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
         log.info("Deleting product with id {}", id);
             productRepo.deleteById(id);
             return    ApiResponse.<Integer>builder()
@@ -116,7 +117,8 @@ public class ProductServiceImpl implements IProduct{
 
     @Override
     public ApiResponse<Integer> restoreProductById(Integer id) {
-        Product product = verifyResource.verifyOrGetProductById(id);
+        Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
+                .orElseThrow(() -> new  ResourceNotFoundException ("No Product found with id : " + id,"PRODUCT_NOT_FOUND"));
         log.info("Restore product with id {}", id);
         product.setDeletedAt(null);
         product.setIsActive(true);
@@ -127,6 +129,19 @@ public class ProductServiceImpl implements IProduct{
                 .success(true)
                 .message("Product restored successfully with id : " +  product.getId())
                 .data(null)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<GetProductResponseDTO> getDeletedProductById(Integer id) {
+        Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No deleted Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
+
+        log.info("Successfully Get deleted product with id : {}", product.getId());
+        return ApiResponse.<GetProductResponseDTO>builder()
+                .success(true)
+                .message("Deleted Product fetched successfully with id : "+ product.getId())
+                .data(toGetProductResponseDTO(product))
                 .build();
     }
 
@@ -142,7 +157,7 @@ public class ProductServiceImpl implements IProduct{
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
-        Page<Product> page = productRepo.findByDeletedAtIsNotNull(pageable);
+        Page<Product> page = productRepo.findAllByDeletedAtIsNotNull(pageable);
         List<Product> products = page.getContent(); // actual data
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);

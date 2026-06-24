@@ -6,6 +6,7 @@ import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
+import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
@@ -46,7 +47,7 @@ public class CategoryServiceImpl implements ICategory {
         );
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
         Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
-        Page<Category> page = categoryRepo.findByDeletedAtIsNull(pageable);
+        Page<Category> page = categoryRepo.findAllByDeletedAtIsNull(pageable);
         List<Category> category = page.getContent();
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
@@ -88,7 +89,7 @@ public class CategoryServiceImpl implements ICategory {
 
     @Override
     public ApiResponse<Integer> removeCategoryById(Integer id) {
-        Category category = verifyResource.verifyOrGetCategoryById(id);
+        Category category = categoryRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
         log.info("Deleting category with id {}", id);
         categoryRepo.deleteById(id);
 
@@ -117,7 +118,8 @@ public class CategoryServiceImpl implements ICategory {
 
     @Override
     public ApiResponse<Integer> restoreCategoryById(Integer id) {
-        Category category = verifyResource.verifyOrGetCategoryById(id);
+        Category category = categoryRepo.findByIdAndDeletedAtIsNotNull(id)
+                .orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
         log.info("Restore category with id {}", id);
         category.setDeletedAt(null);
         category.setIsActive(true);
@@ -128,6 +130,19 @@ public class CategoryServiceImpl implements ICategory {
                 .success(true)
                 .message("Category Restored Successfully with id : "+ id)
                 .data(category.getId())
+                .build();
+    }
+
+    @Override
+    public ApiResponse<GetCategoryResponseDTO> getDeletedCategoryById(Integer id) {
+        Category category = categoryRepo.findByIdAndDeletedAtIsNotNull(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Deleted Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
+        log.info("Successfully Get deleted category with id : {}", category.getId());
+
+        return ApiResponse.<GetCategoryResponseDTO>builder()
+                .success(true)
+                .message("Deleted Category with id : " + category.getId() +" fetched successfully")
+                .data(CategoryMapper.toDTO(category))
                 .build();
     }
 
@@ -146,7 +161,7 @@ public class CategoryServiceImpl implements ICategory {
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
-        Page<Category> page = categoryRepo.findByDeletedAtIsNotNull(pageable);
+        Page<Category> page = categoryRepo.findAllByDeletedAtIsNotNull(pageable);
         List<Category> category = page.getContent();
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);

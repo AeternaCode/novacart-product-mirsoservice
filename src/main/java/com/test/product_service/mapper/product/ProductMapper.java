@@ -26,6 +26,7 @@ public class ProductMapper {
                 .updatedBy(product.getUpdatedBy())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
+                .deletedAt(product.getDeletedAt())
                 .categoryId(product.getCategory().getId())
                 .categoryName(product.getCategory().getCategoryName())
                 .build();

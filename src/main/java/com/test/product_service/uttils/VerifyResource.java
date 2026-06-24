@@ -19,13 +19,13 @@ public class VerifyResource {
 
     public Product verifyOrGetProductById(Integer id){
         log.info("Verifying product with id={}", id);
-        return  productRepo.findById(id)
+        return  productRepo.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
     }
 
     public Category verifyOrGetCategoryById(Integer id){
         log.info("Verifying category with id={}", id);
-         return categoryRepo.findById(id)
+         return categoryRepo.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
 
     }

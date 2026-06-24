@@ -113,6 +113,15 @@ public class ProductController {
     }
 
     @Operation(
+            summary = "Get Deleted product by ID",
+            description = "Returns a single deleted product using its unique identifier"
+    )
+    @GetMapping("/get-deleted-product-by-id/{id}")
+    public ResponseEntity<ApiResponse<GetProductResponseDTO>> getDeletedProductById(@PathVariable @Positive(message = "Id must be greater than 0")  Integer id){
+        return ResponseEntity.ok(productService.getDeletedProductById(id));
+    }
+
+    @Operation(
             summary = "Update product details",
             description = "Updates selected fields of an existing product"
     )

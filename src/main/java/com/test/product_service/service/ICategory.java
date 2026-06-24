@@ -14,6 +14,7 @@ public interface ICategory {
     ApiResponse<Integer> removeCategoryById(Integer id);
     ApiResponse<Integer> softRemoveCategoryById(Integer id);
     ApiResponse<Integer> restoreCategoryById(Integer id);
+    ApiResponse<GetCategoryResponseDTO> getDeletedCategoryById(Integer id);
     ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(int pageNumber, int size,CategorySortField sortBy,SortDirection direction);
     ApiResponse<GetCategoryResponseDTO> updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO);
 }

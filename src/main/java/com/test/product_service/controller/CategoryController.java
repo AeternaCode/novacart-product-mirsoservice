@@ -112,6 +112,15 @@ public class CategoryController {
     }
 
     @Operation(
+            summary = "Get Deleted category by ID",
+            description = "Returns deleted category details using its unique identifier"
+    )
+    @GetMapping("/get-deleted-category-by-id/{id}")
+    public ResponseEntity<ApiResponse<GetCategoryResponseDTO>> getDeletedCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity.ok(categoryService.getDeletedCategoryById(id));
+    }
+
+    @Operation(
             summary = "Update category details",
             description = "Updates an existing category"
     )
