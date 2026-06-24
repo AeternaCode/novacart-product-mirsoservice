@@ -1,52 +1,131 @@
 package com.test.product_service.controller;
 
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryServiceImpl;
+import com.test.product_service.uttils.enums.CategorySortField;
+import com.test.product_service.uttils.enums.SortDirection;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
 @Validated
+@Tag(
+        name = "Category Management",
+        description = "APIs for managing product categories including create, update, delete and retrieval operations"
+)
 public class CategoryController {
 
     private final CategoryServiceImpl categoryService;
 
+    @Operation(
+            summary = "Get all categories",
+            description = "Returns paginated list of categories with sorting support"
+    )
     @GetMapping("/get-all-categories")
-    public ResponseEntity<List<GetCategoryResponseDTO>> getAllCategories(){
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<ApiResponse<PageResponse<GetCategoryResponseDTO>>> getAllCategories(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
+             @RequestParam(defaultValue = "ID") CategorySortField sortBy,
+            @RequestParam(defaultValue = "ASC") SortDirection direction
+    ){
+        return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size, sortBy, direction));
     }
 
-    // get by id
+    @Operation(
+            summary = "Get category by ID",
+            description = "Returns category details using its unique identifier"
+    )
     @GetMapping("/get-category-by-id/{id}")
-    public ResponseEntity<GetCategoryResponseDTO> getCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+    public ResponseEntity<ApiResponse<GetCategoryResponseDTO>> getCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
-    //add
+
+    @Operation(
+            summary = "Create a new category",
+            description = "Creates a new category and returns generated category ID"
+    )
     @PostMapping("/add-category")
-    public ResponseEntity<AddDeleteResponseDTO> addCategory(@Valid @RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
-        AddDeleteResponseDTO addDeleteResponseDTO = categoryService.addCategory(addCategoryRequestDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(addDeleteResponseDTO);
+    public ResponseEntity<ApiResponse<Integer>> addCategory(@Valid @RequestBody AddUpdateCategoryRequestDTO addCategoryRequestDTO){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(categoryService.addCategory(addCategoryRequestDTO));
     }
-    // delete
+
+    @Operation(
+            summary = "Delete a category",
+            description = "Permanently Deletes a category using category ID"
+    )
+    @DeleteMapping("/remove-category/{id}/permanent")
+    public ResponseEntity<ApiResponse<Integer>> removeCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryService.removeCategoryById(id));
+    }
+
+    @Operation(
+            summary = "Soft Delete a category",
+            description = "Soft deletes a category using category ID"
+    )
     @DeleteMapping("/remove-category/{id}")
-    public ResponseEntity<AddDeleteResponseDTO> removeCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
-        AddDeleteResponseDTO addDeleteResponseDTO = categoryService.removeCategoryById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(addDeleteResponseDTO);
+    public ResponseEntity<ApiResponse<Integer>> softRemoveCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryService.softRemoveCategoryById(id));
     }
-    // update
+
+    @Operation(
+            summary = "Restore a category",
+            description = "Restore Soft deleted category using category ID"
+    )
+    @PatchMapping("/restore-category/{id}")
+    public ResponseEntity<ApiResponse<Integer>> restoreCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(categoryService.restoreCategoryById(id));
+    }
+
+    @Operation(
+            summary = "Get all deleted categories",
+            description = "Returns paginated list of deleted categories with sorting support"
+    )
+    @GetMapping("/get-deleted-category")
+    public ResponseEntity<ApiResponse<PageResponse<GetCategoryResponseDTO>>> getDeletedCategory(
+            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
+            @RequestParam(defaultValue = "ID") CategorySortField sortBy,
+            @RequestParam(defaultValue = "ASC") SortDirection direction
+    ){
+        return ResponseEntity.ok(categoryService.getDeletedCategory(pageNumber, size, sortBy, direction));
+    }
+
+    @Operation(
+            summary = "Get Deleted category by ID",
+            description = "Returns deleted category details using its unique identifier"
+    )
+    @GetMapping("/get-deleted-category-by-id/{id}")
+    public ResponseEntity<ApiResponse<GetCategoryResponseDTO>> getDeletedCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id){
+        return ResponseEntity.ok(categoryService.getDeletedCategoryById(id));
+    }
+
+    @Operation(
+            summary = "Update category details",
+            description = "Updates an existing category"
+    )
     @PatchMapping("/update-category-by-id/{id}")
-    public ResponseEntity<GetCategoryResponseDTO> updateCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id,@Valid @RequestBody AddUpdateCategoryRequestDTO  updateCategoryRequestDTO){
+    public ResponseEntity<ApiResponse<GetCategoryResponseDTO>> updateCategoryById(@PathVariable @Positive(message = "Id must be greater than 0") Integer id,@Valid @RequestBody AddUpdateCategoryRequestDTO  updateCategoryRequestDTO){
         return ResponseEntity.ok(categoryService.updateCategoryById(id,updateCategoryRequestDTO));
     }
 }

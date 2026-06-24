@@ -1,15 +1,20 @@
 package com.test.product_service.service;
 
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
-
-import java.util.List;
+import com.test.product_service.uttils.enums.CategorySortField;
+import com.test.product_service.uttils.enums.SortDirection;
 
 public interface ICategory {
-    List<GetCategoryResponseDTO> getAllCategories();
-    GetCategoryResponseDTO getCategoryById(Integer id);
-    AddDeleteResponseDTO addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO);
-    AddDeleteResponseDTO removeCategoryById(Integer id);
-    GetCategoryResponseDTO updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO);
+    ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction);
+    ApiResponse<GetCategoryResponseDTO> getCategoryById(Integer id);
+    ApiResponse<Integer> addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO);
+    ApiResponse<Integer> removeCategoryById(Integer id);
+    ApiResponse<Integer> softRemoveCategoryById(Integer id);
+    ApiResponse<Integer> restoreCategoryById(Integer id);
+    ApiResponse<GetCategoryResponseDTO> getDeletedCategoryById(Integer id);
+    ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(int pageNumber, int size,CategorySortField sortBy,SortDirection direction);
+    ApiResponse<GetCategoryResponseDTO> updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO);
 }
