@@ -106,12 +106,13 @@ public class ProductController {
     )
     @GetMapping("/get-deleted-product")
     public ResponseEntity<ApiResponse<PageResponse<GetProductResponseDTO>>> getDeletedProduct(
+            @ModelAttribute SearchProductRequestDTO searchProductRequestDTO,
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
             @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
             @RequestParam(defaultValue = "ID") ProductSortField sortBy,
             @RequestParam(defaultValue = "ASC") SortDirection direction
     ){
-        return ResponseEntity.ok(productService.getDeletedProduct(pageNumber, size, sortBy, direction));
+        return ResponseEntity.ok(productService.getDeletedProduct(searchProductRequestDTO,pageNumber, size, sortBy, direction));
     }
 
     @Operation(

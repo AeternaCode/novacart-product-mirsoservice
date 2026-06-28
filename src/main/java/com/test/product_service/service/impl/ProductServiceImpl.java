@@ -53,7 +53,7 @@ public class ProductServiceImpl implements IProduct{
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
 
-        Specification<Product> specification = ProductSpecificationBuilder.build(searchProductRequestDTO);
+        Specification<Product> specification = ProductSpecificationBuilder.buildActive(searchProductRequestDTO);
 
         Page<Product> page = productRepo.findAll(specification,pageable);
         List<Product> products = page.getContent(); // actual data
@@ -152,7 +152,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
-    public ApiResponse<PageResponse<GetProductResponseDTO>> getDeletedProduct(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetProductResponseDTO>> getDeletedProduct(SearchProductRequestDTO searchProductRequestDTO,int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
                 Sort.by(sortBy.getProductSortValue()).descending()
@@ -163,7 +163,10 @@ public class ProductServiceImpl implements IProduct{
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
-        Page<Product> page = productRepo.findAllByDeletedAtIsNotNull(pageable);
+
+        Specification<Product> specification = ProductSpecificationBuilder.buildDeleted(searchProductRequestDTO);
+
+        Page<Product> page = productRepo.findAll(specification,pageable);
         List<Product> products = page.getContent(); // actual data
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);

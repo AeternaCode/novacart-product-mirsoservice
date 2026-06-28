@@ -8,11 +8,21 @@ public final class ProductSpecificationBuilder {
 
     private ProductSpecificationBuilder() {}
 
-    public static Specification<Product> build(SearchProductRequestDTO searchProductRequestDTO) {
+    public static Specification<Product> buildActive(SearchProductRequestDTO searchProductRequestDTO) {
+        return applyCommonFilters(
+                Specification.where(ProductSpecification.isNotDeleted()),
+                searchProductRequestDTO
+        );
+    }
 
-        Specification<Product> specification = Specification.where(
-                        ProductSpecification.isNotDeleted()
-                );
+    public static Specification<Product> buildDeleted(SearchProductRequestDTO searchProductRequestDTO) {
+        return applyCommonFilters(
+                Specification.where(ProductSpecification.isDeleted()),
+                searchProductRequestDTO
+        );
+    }
+
+    public static Specification<Product> applyCommonFilters(Specification<Product> specification,SearchProductRequestDTO searchProductRequestDTO) {
 
         if(searchProductRequestDTO.productBrand() != null){
             specification = specification.and(

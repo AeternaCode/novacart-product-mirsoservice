@@ -24,6 +24,11 @@ public final class ProductSpecification {
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
 
+    public static Specification<Product> isDeleted(){
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.isNotNull(root.get("deletedAt"));
+    }
+
     public static Specification<Product> hasBrand(String brand){
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("productBrand"), brand);

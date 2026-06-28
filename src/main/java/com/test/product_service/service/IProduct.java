@@ -17,6 +17,6 @@ public interface IProduct {
     ApiResponse<Integer>softRemoveProductById(Integer id);
     ApiResponse<Integer>restoreProductById(Integer id);
     ApiResponse<GetProductResponseDTO> getDeletedProductById(Integer id);
-    ApiResponse<PageResponse<GetProductResponseDTO>>getDeletedProduct(int pageNumber, int size, ProductSortField sortBy, SortDirection direction);
+    ApiResponse<PageResponse<GetProductResponseDTO>>getDeletedProduct(SearchProductRequestDTO searchProductRequestDTO,int pageNumber, int size, ProductSortField sortBy, SortDirection direction);
     ApiResponse<GetProductResponseDTO> updateProductById( Integer id, UpdateProductRequestDTO updateProductRequestDTO);
 }
