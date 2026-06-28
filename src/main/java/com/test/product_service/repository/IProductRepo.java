@@ -9,8 +9,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface IProductRepo extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
-
-    Page<Product> findAllByDeletedAtIsNull(Pageable pageable);
     Page<Product> findAllByDeletedAtIsNotNull(Pageable pageable);
     Optional<Product> findByIdAndDeletedAtIsNull(Integer id);
     Optional<Product> findByIdAndDeletedAtIsNotNull(Integer id);

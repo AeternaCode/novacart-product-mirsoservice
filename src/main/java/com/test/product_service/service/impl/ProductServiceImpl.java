@@ -13,6 +13,7 @@ import com.test.product_service.error_handling.custom_exception.ResourceNotFound
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
+import com.test.product_service.specification.product.ProductSpecificationBuilder;
 import com.test.product_service.uttils.VerifyResource;
 import com.test.product_service.uttils.enums.ProductSortField;
 import com.test.product_service.uttils.enums.SortDirection;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
@@ -50,7 +52,10 @@ public class ProductServiceImpl implements IProduct{
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
-        Page<Product> page = productRepo.findAllByDeletedAtIsNull(pageable);
+
+        Specification<Product> specification = ProductSpecificationBuilder.build(searchProductRequestDTO);
+
+        Page<Product> page = productRepo.findAll(specification,pageable);
         List<Product> products = page.getContent(); // actual data
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);
