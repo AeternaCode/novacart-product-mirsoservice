@@ -3,6 +3,7 @@ package com.test.product_service.service.impl;
 import com.test.product_service.config.PaginationProperties;
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
+import com.test.product_service.dto.request.product.SearchProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
@@ -37,7 +38,7 @@ public class ProductServiceImpl implements IProduct{
     private final PaginationProperties paginationProperties;
 
     @Override
-    public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(SearchProductRequestDTO searchProductRequestDTO, int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
 
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?

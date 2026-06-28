@@ -2,6 +2,7 @@ package com.test.product_service.controller;
 
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
+import com.test.product_service.dto.request.product.SearchProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
@@ -38,11 +39,12 @@ public class ProductController {
     )
     @GetMapping("/get-all-products")
     public ResponseEntity<ApiResponse<PageResponse<GetProductResponseDTO>>> getAllProducts(
+            @ModelAttribute SearchProductRequestDTO searchProductRequestDTO,
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
             @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
             @RequestParam(defaultValue = "ID") ProductSortField sortBy,
             @RequestParam(defaultValue = "ASC") SortDirection direction){
-        return ResponseEntity.ok(productService.getAllProducts(pageNumber, size, sortBy, direction));
+        return ResponseEntity.ok(productService.getAllProducts(searchProductRequestDTO,pageNumber, size, sortBy, direction));
     }
 
     @Operation(
