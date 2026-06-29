@@ -3,6 +3,7 @@ package com.test.product_service.service.impl;
 import com.test.product_service.config.PaginationProperties;
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
+import com.test.product_service.dto.request.product.SearchProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
@@ -12,6 +13,7 @@ import com.test.product_service.error_handling.custom_exception.ResourceNotFound
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
+import com.test.product_service.specification.product.ProductSpecificationBuilder;
 import com.test.product_service.uttils.VerifyResource;
 import com.test.product_service.uttils.enums.ProductSortField;
 import com.test.product_service.uttils.enums.SortDirection;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
@@ -37,7 +40,7 @@ public class ProductServiceImpl implements IProduct{
     private final PaginationProperties paginationProperties;
 
     @Override
-    public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(SearchProductRequestDTO searchProductRequestDTO, int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
 
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
@@ -49,7 +52,10 @@ public class ProductServiceImpl implements IProduct{
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
-        Page<Product> page = productRepo.findAllByDeletedAtIsNull(pageable);
+
+        Specification<Product> specification = ProductSpecificationBuilder.buildActive(searchProductRequestDTO);
+
+        Page<Product> page = productRepo.findAll(specification,pageable);
         List<Product> products = page.getContent(); // actual data
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);
@@ -146,7 +152,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
-    public ApiResponse<PageResponse<GetProductResponseDTO>> getDeletedProduct(int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetProductResponseDTO>> getDeletedProduct(SearchProductRequestDTO searchProductRequestDTO,int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
                 Sort.by(sortBy.getProductSortValue()).descending()
@@ -157,7 +163,10 @@ public class ProductServiceImpl implements IProduct{
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize,sort);
-        Page<Product> page = productRepo.findAllByDeletedAtIsNotNull(pageable);
+
+        Specification<Product> specification = ProductSpecificationBuilder.buildDeleted(searchProductRequestDTO);
+
+        Page<Product> page = productRepo.findAll(specification,pageable);
         List<Product> products = page.getContent(); // actual data
 
         List<GetProductResponseDTO> listDto =  ProductMapper.toGetProductResponseDTO(products);

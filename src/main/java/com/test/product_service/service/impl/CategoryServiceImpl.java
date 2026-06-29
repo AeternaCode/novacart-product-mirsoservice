@@ -3,6 +3,7 @@ package com.test.product_service.service.impl;
 import com.test.product_service.config.PaginationProperties;
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
+import com.test.product_service.dto.request.category.SearchCategoryRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
@@ -10,6 +11,7 @@ import com.test.product_service.error_handling.custom_exception.ResourceNotFound
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
+import com.test.product_service.specification.category.CategorySpecificationBuilder;
 import com.test.product_service.uttils.VerifyResource;
 import com.test.product_service.uttils.enums.CategorySortField;
 import com.test.product_service.uttils.enums.SortDirection;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,7 +37,7 @@ public class CategoryServiceImpl implements ICategory {
     private final PaginationProperties paginationProperties;
 
     @Override
-    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(SearchCategoryRequestDTO searchCategoryRequestDTO,int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
                 Sort.by(sortBy.getCategorySortValue()).descending()
@@ -47,7 +50,10 @@ public class CategoryServiceImpl implements ICategory {
         );
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
         Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
-        Page<Category> page = categoryRepo.findAllByDeletedAtIsNull(pageable);
+
+        Specification<Category> specification = CategorySpecificationBuilder.buildActive(searchCategoryRequestDTO);
+
+        Page<Category> page = categoryRepo.findAll(specification,pageable);
         List<Category> category = page.getContent();
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
@@ -147,7 +153,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
-    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
+    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(SearchCategoryRequestDTO searchCategoryRequestDTO,int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
                 Sort.by(sortBy.getCategorySortValue()).descending()
@@ -161,7 +167,10 @@ public class CategoryServiceImpl implements ICategory {
         if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
 
         Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
-        Page<Category> page = categoryRepo.findAllByDeletedAtIsNotNull(pageable);
+
+        Specification<Category> specification = CategorySpecificationBuilder.buildDeleted(searchCategoryRequestDTO);
+
+        Page<Category> page = categoryRepo.findAll(specification,pageable);
         List<Category> category = page.getContent();
 
         List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
