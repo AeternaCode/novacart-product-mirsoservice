@@ -24,14 +24,14 @@ public final class ProductSpecificationBuilder {
 
     public static Specification<Product> applyCommonFilters(Specification<Product> specification,SearchProductRequestDTO searchProductRequestDTO) {
 
-        if(searchProductRequestDTO.productBrand() != null){
+        if(searchProductRequestDTO.productBrand() != null  && !searchProductRequestDTO.productBrand().isBlank()){
             specification = specification.and(
                     ProductSpecification.hasBrand(
                             searchProductRequestDTO.productBrand()
                     )
             );
         }
-        if(searchProductRequestDTO.productName() != null){
+        if(searchProductRequestDTO.productName() != null  && !searchProductRequestDTO.productName().isBlank()){
             specification = specification.and(
                     ProductSpecification.hasProductName(
                             searchProductRequestDTO.productName())
