@@ -2,6 +2,7 @@ package com.test.product_service.controller;
 
 import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
+import com.test.product_service.dto.request.category.SearchCategoryRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.service.impl.CategoryServiceImpl;
@@ -36,12 +37,13 @@ public class CategoryController {
     )
     @GetMapping("/get-all-categories")
     public ResponseEntity<ApiResponse<PageResponse<GetCategoryResponseDTO>>> getAllCategories(
-            @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
+            @ModelAttribute SearchCategoryRequestDTO searchCategoryRequestDTO,
+            @RequestParam(defaultValue = "0")@PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
             @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
-             @RequestParam(defaultValue = "ID") CategorySortField sortBy,
+            @RequestParam(defaultValue = "ID") CategorySortField sortBy,
             @RequestParam(defaultValue = "ASC") SortDirection direction
     ){
-        return ResponseEntity.ok(categoryService.getAllCategories(pageNumber, size, sortBy, direction));
+        return ResponseEntity.ok(categoryService.getAllCategories(searchCategoryRequestDTO,pageNumber, size, sortBy, direction));
     }
 
     @Operation(
@@ -103,12 +105,13 @@ public class CategoryController {
     )
     @GetMapping("/get-deleted-category")
     public ResponseEntity<ApiResponse<PageResponse<GetCategoryResponseDTO>>> getDeletedCategory(
+            @ModelAttribute SearchCategoryRequestDTO searchCategoryRequestDTO,
             @RequestParam(defaultValue = "0") @PositiveOrZero(message = "Page number cannot be negative") int pageNumber,
             @RequestParam(defaultValue = "10") @Positive(message = "Size must be greater than 0") int size,
             @RequestParam(defaultValue = "ID") CategorySortField sortBy,
             @RequestParam(defaultValue = "ASC") SortDirection direction
     ){
-        return ResponseEntity.ok(categoryService.getDeletedCategory(pageNumber, size, sortBy, direction));
+        return ResponseEntity.ok(categoryService.getDeletedCategory(searchCategoryRequestDTO,pageNumber, size, sortBy, direction));
     }
 
     @Operation(
