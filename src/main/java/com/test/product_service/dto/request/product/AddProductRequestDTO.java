@@ -1,9 +1,11 @@
 package com.test.product_service.dto.request.product;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
+@Schema(description = "Request payload for creating a product")
 public record AddProductRequestDTO(
 
         @NotBlank(message = "Product name is required")

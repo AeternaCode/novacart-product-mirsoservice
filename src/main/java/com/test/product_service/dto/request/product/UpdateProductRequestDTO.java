@@ -1,9 +1,11 @@
 package com.test.product_service.dto.request.product;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 
+@Schema(description = "Request payload for Updating a product")
 public record UpdateProductRequestDTO(
 
         @Size(min = 2, max = 100,

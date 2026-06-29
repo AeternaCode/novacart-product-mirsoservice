@@ -1,65 +1,194 @@
 package com.test.product_service.service.impl;
 
+import com.test.product_service.config.PaginationProperties;
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.category.AddUpdateCategoryRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
+import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
 import com.test.product_service.uttils.VerifyResource;
+import com.test.product_service.uttils.enums.CategorySortField;
+import com.test.product_service.uttils.enums.SortDirection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CategoryServiceImpl implements ICategory {
 
     private final ICategoryRepo categoryRepo;
     private final VerifyResource verifyResource;
+    private final PaginationProperties paginationProperties;
 
     @Override
-    public List<GetCategoryResponseDTO> getAllCategories() {
-        List<Category> category = categoryRepo.findAll();
-        return CategoryMapper.toDto(category);
+    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
+        // Creating Sort
+        Sort sort = direction == SortDirection.DESC ?
+                Sort.by(sortBy.getCategorySortValue()).descending()
+                :
+                Sort.by(sortBy.getCategorySortValue()).ascending();
+
+        int pageSize = Math.min(
+                size,
+                paginationProperties.maxPageSize()
+        );
+        if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
+        Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
+        Page<Category> page = categoryRepo.findAllByDeletedAtIsNull(pageable);
+        List<Category> category = page.getContent();
+
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+
+        log.info("List of Category : {}", listDto);
+
+         return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
+                 .success(true)
+                 .message("Category List fetched successfully")
+                 .data(CategoryMapper.toPageResponse(listDto, page))
+                 .build();
     }
 
     @Override
-    public GetCategoryResponseDTO getCategoryById(Integer id) {
+    public ApiResponse<GetCategoryResponseDTO> getCategoryById(Integer id) {
         Category category = verifyResource.verifyOrGetCategoryById(id);
-        return CategoryMapper.toDTO(category);
+        log.info("Successfully Get category with id : {}", category.getId());
+
+        return ApiResponse.<GetCategoryResponseDTO>builder()
+                .success(true)
+                .message("Category with id : " + category.getId() +" fetched successfully")
+                .data(CategoryMapper.toDTO(category))
+                .build();
     }
 
     @Override
-    public AddDeleteResponseDTO addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
+    public ApiResponse<Integer> addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
         Category category = CategoryMapper.toEntity(addCategoryRequestDTO);
+        log.info("Creating category: {}", addCategoryRequestDTO.categoryName());
        Category savedcategory =  categoryRepo.save(category);
-        return AddDeleteResponseDTO.builder()
-                .id(savedcategory.getId())
+        log.info("Category created successfully. ProductId={}", category.getId());
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
                 .message("Category Added Successfully with name : "+ savedcategory.getCategoryName())
+                .data(savedcategory.getId())
                 .build();
     }
 
     @Override
-    public AddDeleteResponseDTO removeCategoryById(Integer id) {
-        verifyResource.verifyOrGetCategoryById(id);
+    public ApiResponse<Integer> removeCategoryById(Integer id) {
+        Category category = categoryRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
+        log.info("Deleting category with id {}", id);
         categoryRepo.deleteById(id);
-        return AddDeleteResponseDTO.builder()
-                .id(null)
-                .message("Category Removed Successfully")
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Category Removed Successfully with id : "+ category.getId())
+                .data(null)
                 .build();
     }
 
     @Override
-    public GetCategoryResponseDTO updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
+    public ApiResponse<Integer> softRemoveCategoryById(Integer id) {
+        Category category = verifyResource.verifyOrGetCategoryById(id);
+        log.info("Soft Deleting category with id {}", id);
+        category.setDeletedAt(LocalDateTime.now());
+        category.setIsActive(false);
+
+        categoryRepo.save(category);
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Category Removed Successfully with id : "+ category.getId())
+                .data(null)
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Integer> restoreCategoryById(Integer id) {
+        Category category = categoryRepo.findByIdAndDeletedAtIsNotNull(id)
+                .orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
+        log.info("Restore category with id {}", id);
+        category.setDeletedAt(null);
+        category.setIsActive(true);
+
+        categoryRepo.save(category);
+
+        return ApiResponse.<Integer>builder()
+                .success(true)
+                .message("Category Restored Successfully with id : "+ id)
+                .data(category.getId())
+                .build();
+    }
+
+    @Override
+    public ApiResponse<GetCategoryResponseDTO> getDeletedCategoryById(Integer id) {
+        Category category = categoryRepo.findByIdAndDeletedAtIsNotNull(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No Deleted Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
+        log.info("Successfully Get deleted category with id : {}", category.getId());
+
+        return ApiResponse.<GetCategoryResponseDTO>builder()
+                .success(true)
+                .message("Deleted Category with id : " + category.getId() +" fetched successfully")
+                .data(CategoryMapper.toDTO(category))
+                .build();
+    }
+
+    @Override
+    public ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
+        // Creating Sort
+        Sort sort = direction == SortDirection.DESC ?
+                Sort.by(sortBy.getCategorySortValue()).descending()
+                :
+                Sort.by(sortBy.getCategorySortValue()).ascending();
+
+        int pageSize = Math.min(
+                size,
+                paginationProperties.maxPageSize()
+        );
+        if(size < paginationProperties.defaultPageSize()) pageSize = paginationProperties.defaultPageSize();
+
+        Pageable pageable = PageRequest.of(pageNumber,pageSize, sort);
+        Page<Category> page = categoryRepo.findAllByDeletedAtIsNotNull(pageable);
+        List<Category> category = page.getContent();
+
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+
+        log.info("List of Category : {}", listDto);
+
+        return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
+                .success(true)
+                .message("Deleted Category List fetched successfully")
+                .data(CategoryMapper.toPageResponse(listDto, page))
+                .build();
+    }
+
+    @Override
+    public ApiResponse<GetCategoryResponseDTO> updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
        Category category = verifyResource.verifyOrGetCategoryById(id);
-       if(updateCategoryRequestDTO.name() != null && !updateCategoryRequestDTO.name().isEmpty()){
-           category.setCategoryName(updateCategoryRequestDTO.name());
+        log.info("Updating category with id {}", id);
+       if(updateCategoryRequestDTO.categoryName() != null && !updateCategoryRequestDTO.categoryName().isEmpty()){
+           category.setCategoryName(updateCategoryRequestDTO.categoryName());
        }
        categoryRepo.save(category);
-       return CategoryMapper.toDTO(category);
+        log.info("Category updated successfully. CategoryId={}", category.getId());
+        return ApiResponse.<GetCategoryResponseDTO>builder()
+                .success(true)
+                .message("Category Removed Successfully with id : "+ id)
+                .data(CategoryMapper.toDTO(category))
+                .build();
     }
 
 }

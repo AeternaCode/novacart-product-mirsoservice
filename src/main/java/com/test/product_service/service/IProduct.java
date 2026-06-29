@@ -1,15 +1,21 @@
 package com.test.product_service.service;
 
+import com.test.product_service.dto.ApiResponse;
 import com.test.product_service.dto.request.product.AddProductRequestDTO;
 import com.test.product_service.dto.request.product.UpdateProductRequestDTO;
-import com.test.product_service.dto.response.AddDeleteResponseDTO;
+import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
-import java.util.List;
+import com.test.product_service.uttils.enums.ProductSortField;
+import com.test.product_service.uttils.enums.SortDirection;
 
 public interface IProduct {
-    List<GetProductResponseDTO> getAllProducts();
-    GetProductResponseDTO getProductById(Integer id);
-    AddDeleteResponseDTO addProduct(AddProductRequestDTO addProductRequestDTO);
-    AddDeleteResponseDTO removeProductById(Integer id);
-    GetProductResponseDTO updateProductById( Integer id, UpdateProductRequestDTO updateProductRequestDTO);
+    ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(int pageNumber, int size, ProductSortField sortBy, SortDirection direction);
+    ApiResponse<GetProductResponseDTO> getProductById(Integer id);
+    ApiResponse<Integer> addProduct(AddProductRequestDTO addProductRequestDTO);
+    ApiResponse<Integer> removeProductById(Integer id);
+    ApiResponse<Integer>softRemoveProductById(Integer id);
+    ApiResponse<Integer>restoreProductById(Integer id);
+    ApiResponse<GetProductResponseDTO> getDeletedProductById(Integer id);
+    ApiResponse<PageResponse<GetProductResponseDTO>>getDeletedProduct(int pageNumber, int size, ProductSortField sortBy, SortDirection direction);
+    ApiResponse<GetProductResponseDTO> updateProductById( Integer id, UpdateProductRequestDTO updateProductRequestDTO);
 }
