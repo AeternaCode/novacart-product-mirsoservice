@@ -7,6 +7,7 @@ import com.test.product_service.dto.request.category.SearchCategoryRequestDTO;
 import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
+import com.test.product_service.error_handling.custom_exception.DuplicateResourceException;
 import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
@@ -83,6 +84,14 @@ public class CategoryServiceImpl implements ICategory {
     public ApiResponse<Integer> addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
         Category category = CategoryMapper.toEntity(addCategoryRequestDTO);
         log.info("Creating category: {}", addCategoryRequestDTO.categoryName());
+        if (categoryRepo.existsByCategoryNameIgnoreCaseAndDeletedAtIsNull(
+                addCategoryRequestDTO.categoryName())) {
+
+            throw new DuplicateResourceException(
+                    "Category already exists with name: " + addCategoryRequestDTO.categoryName(),
+                    "CATEGORY_ALREADY_EXISTS"
+            );
+        }
        Category savedcategory =  categoryRepo.save(category);
         log.info("Category created successfully. ProductId={}", category.getId());
 
@@ -186,6 +195,12 @@ public class CategoryServiceImpl implements ICategory {
 
     @Override
     public ApiResponse<GetCategoryResponseDTO> updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
+        if (categoryRepo.existsByCategoryNameIgnoreCaseAndIdNotAndDeletedAtIsNull(updateCategoryRequestDTO.categoryName(), id)) {
+            throw new DuplicateResourceException(
+                    "Category already exists with name: " + updateCategoryRequestDTO.categoryName(),
+                    "CATEGORY_ALREADY_EXISTS"
+            );
+        }
        Category category = verifyResource.verifyOrGetCategoryById(id);
         log.info("Updating category with id {}", id);
        if(updateCategoryRequestDTO.categoryName() != null && !updateCategoryRequestDTO.categoryName().isEmpty()){
@@ -195,7 +210,7 @@ public class CategoryServiceImpl implements ICategory {
         log.info("Category updated successfully. CategoryId={}", category.getId());
         return ApiResponse.<GetCategoryResponseDTO>builder()
                 .success(true)
-                .message("Category Removed Successfully with id : "+ id)
+                .message("Category updated successfully with id : "+ id)
                 .data(CategoryMapper.toDTO(category))
                 .build();
     }

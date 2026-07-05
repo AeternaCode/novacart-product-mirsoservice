@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface ICategoryRepo extends JpaRepository<Category, Integer>, JpaSpecificationExecutor<Category> {
     Optional<Category> findByIdAndDeletedAtIsNull(Integer id);
     Optional<Category> findByIdAndDeletedAtIsNotNull(Integer id);
+    boolean existsByCategoryNameIgnoreCaseAndDeletedAtIsNull(String categoryName);
+    boolean existsByCategoryNameIgnoreCaseAndIdNotAndDeletedAtIsNull(String categoryName, Integer id);
 }
