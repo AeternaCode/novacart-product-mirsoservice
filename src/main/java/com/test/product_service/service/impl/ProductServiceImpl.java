@@ -9,6 +9,7 @@ import com.test.product_service.dto.response.PageResponse;
 import com.test.product_service.dto.response.product.GetProductResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
+import com.test.product_service.error_handling.custom_exception.DuplicateResourceException;
 import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
@@ -84,6 +85,12 @@ public class ProductServiceImpl implements IProduct{
         Category category = verifyResource.verifyOrGetCategoryById(addProductRequestDTO.categoryId());
         log.info("Creating product: {}", addProductRequestDTO.productName());
         Product product = ProductMapper.toProductEntity(addProductRequestDTO, category);
+        if(productRepo.existsByProductNameIgnoreCaseAndDeletedAtIsNull(
+                addProductRequestDTO.productName())){
+            throw new DuplicateResourceException(
+                    "Product already exists with name: " + addProductRequestDTO.productName(),
+                    "PRODUCT_ALREADY_EXISTS");
+        }
         productRepo.save(product);
         log.info("Product created successfully. ProductId={}", product.getId());
         return  ApiResponse.<Integer>builder()
@@ -124,7 +131,7 @@ public class ProductServiceImpl implements IProduct{
     @Override
     public ApiResponse<Integer> restoreProductById(Integer id) {
         Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
-                .orElseThrow(() -> new  ResourceNotFoundException ("No Product found with id : " + id,"PRODUCT_NOT_FOUND"));
+                .orElseThrow(() -> new  ResourceNotFoundException ("No deleted product found with id : " + id,"PRODUCT_NOT_FOUND"));
         log.info("Restore product with id {}", id);
         product.setDeletedAt(null);
         product.setIsActive(true);
@@ -182,7 +189,13 @@ public class ProductServiceImpl implements IProduct{
     @Override
     public ApiResponse<GetProductResponseDTO> updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product product = verifyResource.verifyOrGetProductById(id);
-
+        // duplicate names check
+        if(productRepo.existsByProductNameIgnoreCaseAndDeletedAtIsNull(
+                updateProductRequestDTO.productName())){
+            throw new DuplicateResourceException(
+                    "Product already exists with name: " + updateProductRequestDTO.productName(),
+                    "PRODUCT_ALREADY_EXISTS");
+        }
         log.info("Updating product with id {}", id);
 
         if(updateProductRequestDTO.productName() != null)
