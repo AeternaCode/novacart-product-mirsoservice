@@ -9,6 +9,7 @@ import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.error_handling.custom_exception.DuplicateResourceException;
 import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
+import com.test.product_service.mapper.PagedResponseMapper;
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
@@ -57,14 +58,14 @@ public class CategoryServiceImpl implements ICategory {
         Page<Category> page = categoryRepo.findAll(specification,pageable);
         List<Category> category = page.getContent();
 
-        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDTO(category);
 
         log.info("List of Category : {}", listDto);
 
          return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
                  .success(true)
                  .message("Category List fetched successfully")
-                 .data(CategoryMapper.toPageResponse(listDto, page))
+                 .data(PagedResponseMapper.toPageResponse(listDto, page))
                  .build();
     }
 
@@ -182,14 +183,14 @@ public class CategoryServiceImpl implements ICategory {
         Page<Category> page = categoryRepo.findAll(specification,pageable);
         List<Category> category = page.getContent();
 
-        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDTO(category);
 
         log.info("List of Category : {}", listDto);
 
         return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
                 .success(true)
                 .message("Deleted Category List fetched successfully")
-                .data(CategoryMapper.toPageResponse(listDto, page))
+                .data(PagedResponseMapper.toPageResponse(listDto, page))
                 .build();
     }
 
