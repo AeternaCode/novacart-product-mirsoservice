@@ -27,6 +27,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class ProductServiceImpl implements IProduct{
     private final PaginationProperties paginationProperties;
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(SearchProductRequestDTO searchProductRequestDTO, int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
 
         // Creating Sort
@@ -71,6 +74,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<GetProductResponseDTO> getProductById(Integer id){
         Product product = verifyResource.verifyOrGetProductById(id);
         log.info("Successfully Get product with id : {}", product.getId());
@@ -82,6 +86,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> addProduct(AddProductRequestDTO addProductRequestDTO) {
         Category category = verifyResource.verifyOrGetCategoryById(addProductRequestDTO.categoryId());
         log.info("Creating product: {}", addProductRequestDTO.productName());
@@ -102,6 +107,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> removeProductById(Integer id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException ("No Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
         log.info("Deleting product with id {}", id);
@@ -114,6 +120,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> softRemoveProductById(Integer id) {
         Product product = verifyResource.verifyOrGetProductById(id);
         log.info("Soft Deleting product with id {}", id);
@@ -130,6 +137,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> restoreProductById(Integer id) {
         Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new  ResourceNotFoundException ("No deleted product found with id : " + id,"PRODUCT_NOT_FOUND"));
@@ -147,6 +155,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<GetProductResponseDTO> getDeletedProductById(Integer id) {
         Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No deleted Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
@@ -160,6 +169,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<PageResponse<GetProductResponseDTO>> getDeletedProduct(SearchProductRequestDTO searchProductRequestDTO,int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
@@ -188,6 +198,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<GetProductResponseDTO> updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product product = verifyResource.verifyOrGetProductById(id);
         // duplicate names check
