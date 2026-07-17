@@ -11,6 +11,7 @@ import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
 import com.test.product_service.error_handling.custom_exception.DuplicateResourceException;
 import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
+import com.test.product_service.mapper.PagedResponseMapper;
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
@@ -65,7 +66,7 @@ public class ProductServiceImpl implements IProduct{
         return ApiResponse.<PageResponse<GetProductResponseDTO>>builder()
                 .success(true)
                 .message("Product List fetched successfully")
-                .data(ProductMapper.toPageResponse(listDto, page))
+                .data(PagedResponseMapper.toPageResponse(listDto, page))
                 .build();
     }
 
@@ -182,7 +183,7 @@ public class ProductServiceImpl implements IProduct{
         return ApiResponse.<PageResponse<GetProductResponseDTO>>builder()
                 .success(true)
                 .message("Deleted Product List fetched successfully")
-                .data(ProductMapper.toPageResponse(listDto, page))
+                .data(PagedResponseMapper.toPageResponse(listDto, page))
                 .build();
     }
 
@@ -198,40 +199,14 @@ public class ProductServiceImpl implements IProduct{
         }
         log.info("Updating product with id {}", id);
 
-        if(updateProductRequestDTO.productName() != null)
-            product.setProductName(updateProductRequestDTO.productName());
-
-        if(updateProductRequestDTO.productImageUrl() != null)
-            product.setProductImageUrl(updateProductRequestDTO.productImageUrl());
-
-
-        if(updateProductRequestDTO.productBrand() != null)
-            product.setProductBrand(updateProductRequestDTO.productBrand());
-
-
-        if(updateProductRequestDTO.productDescription() != null)
-            product.setProductDescription(updateProductRequestDTO.productDescription());
-
-
-        if(updateProductRequestDTO.price() != null)
-            product.setPrice(updateProductRequestDTO.price());
-
-
-        if(updateProductRequestDTO.stockQuantity() != null)
-            product.setStockQuantity(updateProductRequestDTO.stockQuantity());
-
-
-        if(updateProductRequestDTO.isActive() != null)
-            product.setIsActive(updateProductRequestDTO.isActive());
-
-        if (updateProductRequestDTO.rating() != null)
-            product.setRating(updateProductRequestDTO.rating());
-
+        product = ProductMapper.updateProductFormDTO(updateProductRequestDTO, product);
         if(updateProductRequestDTO.categoryId() != null){
             Category category = verifyResource.verifyOrGetCategoryById(updateProductRequestDTO.categoryId());
             product.setCategory(category);
         }
+
         productRepo.save(product);
+
         log.info("Product updated successfully. ProductId={}", product.getId());
         return   ApiResponse.<GetProductResponseDTO>builder()
                 .success(true)
