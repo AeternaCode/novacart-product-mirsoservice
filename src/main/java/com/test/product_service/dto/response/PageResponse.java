@@ -5,23 +5,59 @@ import lombok.Builder;
 
 import java.util.List;
 
-@Schema(description = "Product details returned to the client with Pagination Detail")
+@Schema(
+        name = "PageResponse",
+        description = "Paginated response containing the requested data and pagination metadata"
+)
 @Builder
 public record PageResponse<T>(
-         List<T> content,
 
-         int pageNumber,
+        @Schema(
+                description = "List of items in the current page"
+        )
+        List<T> content,
 
-         int pageSize,
+        @Schema(
+                description = "Zero-based page number",
+                example = "0"
+        )
+        int pageNumber,
 
-         long totalElements,
+        @Schema(
+                description = "Maximum number of items per page",
+                example = "10"
+        )
+        int pageSize,
 
-         int totalPages,
+        @Schema(
+                description = "Total number of items across all pages",
+                example = "125"
+        )
+        long totalElements,
 
-         int numberOfElements,
+        @Schema(
+                description = "Total number of available pages",
+                example = "13"
+        )
+        int totalPages,
 
-         boolean first,
+        @Schema(
+                description = "Number of items in the current page",
+                example = "10"
+        )
+        int numberOfElements,
 
-         boolean last
+        @Schema(
+                description = "Indicates whether this is the first page",
+                example = "true"
+        )
+        boolean first,
+
+        @Schema(
+                description = "Indicates whether this is the last page",
+                example = "false"
+        )
+        boolean last
+
 ) {
 }

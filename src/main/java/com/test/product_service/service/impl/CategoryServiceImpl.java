@@ -9,6 +9,7 @@ import com.test.product_service.dto.response.category.GetCategoryResponseDTO;
 import com.test.product_service.entity.Category;
 import com.test.product_service.error_handling.custom_exception.DuplicateResourceException;
 import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
+import com.test.product_service.mapper.PagedResponseMapper;
 import com.test.product_service.mapper.category.CategoryMapper;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.service.ICategory;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +40,7 @@ public class CategoryServiceImpl implements ICategory {
     private final PaginationProperties paginationProperties;
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<PageResponse<GetCategoryResponseDTO>> getAllCategories(SearchCategoryRequestDTO searchCategoryRequestDTO,int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
@@ -57,18 +60,19 @@ public class CategoryServiceImpl implements ICategory {
         Page<Category> page = categoryRepo.findAll(specification,pageable);
         List<Category> category = page.getContent();
 
-        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDTO(category);
 
         log.info("List of Category : {}", listDto);
 
          return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
                  .success(true)
                  .message("Category List fetched successfully")
-                 .data(CategoryMapper.toPageResponse(listDto, page))
+                 .data(PagedResponseMapper.toPageResponse(listDto, page))
                  .build();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<GetCategoryResponseDTO> getCategoryById(Integer id) {
         Category category = verifyResource.verifyOrGetCategoryById(id);
         log.info("Successfully Get category with id : {}", category.getId());
@@ -81,6 +85,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> addCategory(AddUpdateCategoryRequestDTO addCategoryRequestDTO) {
         Category category = CategoryMapper.toEntity(addCategoryRequestDTO);
         log.info("Creating category: {}", addCategoryRequestDTO.categoryName());
@@ -103,6 +108,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> removeCategoryById(Integer id) {
         Category category = categoryRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
         log.info("Deleting category with id {}", id);
@@ -116,6 +122,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> softRemoveCategoryById(Integer id) {
         Category category = verifyResource.verifyOrGetCategoryById(id);
         log.info("Soft Deleting category with id {}", id);
@@ -132,6 +139,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> restoreCategoryById(Integer id) {
         Category category = categoryRepo.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException ("No Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
@@ -149,6 +157,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<GetCategoryResponseDTO> getDeletedCategoryById(Integer id) {
         Category category = categoryRepo.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No Deleted Category Found  with the given id : "+ id,"CATEGORY_NOT_FOUND"));
@@ -162,6 +171,7 @@ public class CategoryServiceImpl implements ICategory {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<PageResponse<GetCategoryResponseDTO>> getDeletedCategory(SearchCategoryRequestDTO searchCategoryRequestDTO,int pageNumber, int size, CategorySortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
@@ -182,18 +192,19 @@ public class CategoryServiceImpl implements ICategory {
         Page<Category> page = categoryRepo.findAll(specification,pageable);
         List<Category> category = page.getContent();
 
-        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDto(category);
+        List<GetCategoryResponseDTO> listDto = CategoryMapper.toDTO(category);
 
         log.info("List of Category : {}", listDto);
 
         return ApiResponse.<PageResponse<GetCategoryResponseDTO>>builder()
                 .success(true)
                 .message("Deleted Category List fetched successfully")
-                .data(CategoryMapper.toPageResponse(listDto, page))
+                .data(PagedResponseMapper.toPageResponse(listDto, page))
                 .build();
     }
 
     @Override
+    @Transactional
     public ApiResponse<GetCategoryResponseDTO> updateCategoryById(Integer id, AddUpdateCategoryRequestDTO updateCategoryRequestDTO) {
         if (categoryRepo.existsByCategoryNameIgnoreCaseAndIdNotAndDeletedAtIsNull(updateCategoryRequestDTO.categoryName(), id)) {
             throw new DuplicateResourceException(
