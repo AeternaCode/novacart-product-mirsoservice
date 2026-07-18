@@ -2,7 +2,7 @@ package com.test.product_service.uttils;
 
 import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
-import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
+import com.test.product_service.exception.custom_exception.ResourceNotFoundException;
 import com.test.product_service.repository.ICategoryRepo;
 import com.test.product_service.repository.IProductRepo;
 import lombok.RequiredArgsConstructor;
