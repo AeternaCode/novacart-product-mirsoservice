@@ -11,6 +11,7 @@ import com.test.product_service.entity.Category;
 import com.test.product_service.entity.Product;
 import com.test.product_service.error_handling.custom_exception.DuplicateResourceException;
 import com.test.product_service.error_handling.custom_exception.ResourceNotFoundException;
+import com.test.product_service.mapper.PagedResponseMapper;
 import com.test.product_service.mapper.product.ProductMapper;
 import com.test.product_service.repository.IProductRepo;
 import com.test.product_service.service.IProduct;
@@ -26,6 +27,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,6 +44,7 @@ public class ProductServiceImpl implements IProduct{
     private final PaginationProperties paginationProperties;
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<PageResponse<GetProductResponseDTO>> getAllProducts(SearchProductRequestDTO searchProductRequestDTO, int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
 
         // Creating Sort
@@ -65,11 +69,12 @@ public class ProductServiceImpl implements IProduct{
         return ApiResponse.<PageResponse<GetProductResponseDTO>>builder()
                 .success(true)
                 .message("Product List fetched successfully")
-                .data(ProductMapper.toPageResponse(listDto, page))
+                .data(PagedResponseMapper.toPageResponse(listDto, page))
                 .build();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<GetProductResponseDTO> getProductById(Integer id){
         Product product = verifyResource.verifyOrGetProductById(id);
         log.info("Successfully Get product with id : {}", product.getId());
@@ -81,6 +86,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> addProduct(AddProductRequestDTO addProductRequestDTO) {
         Category category = verifyResource.verifyOrGetCategoryById(addProductRequestDTO.categoryId());
         log.info("Creating product: {}", addProductRequestDTO.productName());
@@ -101,6 +107,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> removeProductById(Integer id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException ("No Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
         log.info("Deleting product with id {}", id);
@@ -113,6 +120,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> softRemoveProductById(Integer id) {
         Product product = verifyResource.verifyOrGetProductById(id);
         log.info("Soft Deleting product with id {}", id);
@@ -129,6 +137,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional
     public ApiResponse<Integer> restoreProductById(Integer id) {
         Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new  ResourceNotFoundException ("No deleted product found with id : " + id,"PRODUCT_NOT_FOUND"));
@@ -146,6 +155,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<GetProductResponseDTO> getDeletedProductById(Integer id) {
         Product product = productRepo.findByIdAndDeletedAtIsNotNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No deleted Product Found with the given id :"+ id, "PRODUCT_NOT_FOUND"));
@@ -159,6 +169,7 @@ public class ProductServiceImpl implements IProduct{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ApiResponse<PageResponse<GetProductResponseDTO>> getDeletedProduct(SearchProductRequestDTO searchProductRequestDTO,int pageNumber, int size, ProductSortField sortBy, SortDirection direction) {
         // Creating Sort
         Sort sort = direction == SortDirection.DESC ?
@@ -182,11 +193,12 @@ public class ProductServiceImpl implements IProduct{
         return ApiResponse.<PageResponse<GetProductResponseDTO>>builder()
                 .success(true)
                 .message("Deleted Product List fetched successfully")
-                .data(ProductMapper.toPageResponse(listDto, page))
+                .data(PagedResponseMapper.toPageResponse(listDto, page))
                 .build();
     }
 
     @Override
+    @Transactional
     public ApiResponse<GetProductResponseDTO> updateProductById(Integer id, UpdateProductRequestDTO updateProductRequestDTO) {
         Product product = verifyResource.verifyOrGetProductById(id);
         // duplicate names check
@@ -198,40 +210,14 @@ public class ProductServiceImpl implements IProduct{
         }
         log.info("Updating product with id {}", id);
 
-        if(updateProductRequestDTO.productName() != null)
-            product.setProductName(updateProductRequestDTO.productName());
-
-        if(updateProductRequestDTO.productImageUrl() != null)
-            product.setProductImageUrl(updateProductRequestDTO.productImageUrl());
-
-
-        if(updateProductRequestDTO.productBrand() != null)
-            product.setProductBrand(updateProductRequestDTO.productBrand());
-
-
-        if(updateProductRequestDTO.productDescription() != null)
-            product.setProductDescription(updateProductRequestDTO.productDescription());
-
-
-        if(updateProductRequestDTO.price() != null)
-            product.setPrice(updateProductRequestDTO.price());
-
-
-        if(updateProductRequestDTO.stockQuantity() != null)
-            product.setStockQuantity(updateProductRequestDTO.stockQuantity());
-
-
-        if(updateProductRequestDTO.isActive() != null)
-            product.setIsActive(updateProductRequestDTO.isActive());
-
-        if (updateProductRequestDTO.rating() != null)
-            product.setRating(updateProductRequestDTO.rating());
-
+        product = ProductMapper.updateProductFormDTO(updateProductRequestDTO, product);
         if(updateProductRequestDTO.categoryId() != null){
             Category category = verifyResource.verifyOrGetCategoryById(updateProductRequestDTO.categoryId());
             product.setCategory(category);
         }
+
         productRepo.save(product);
+
         log.info("Product updated successfully. ProductId={}", product.getId());
         return   ApiResponse.<GetProductResponseDTO>builder()
                 .success(true)
